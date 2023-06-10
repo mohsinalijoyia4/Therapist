@@ -35,10 +35,10 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   font_awesome_flutter: ^10.4.0
-  firebase_core: ^1.10.0
-  firebase_auth: ^3.3.5
-  cloud_firestore: ^3.1.6
-  firebase_storage: ^10.2.2
+  firebase_core: ^2.13.1
+  firebase_auth: ^4.6.2
+  cloud_firestore: ^4.8.0
+  firebase_storage: ^11.2.2
   fluttertoast: ^8.2.2
   flutter_plugin_android_lifecycle: ^2.0.11
   image_picker: ^0.8.4+4
@@ -60,9 +60,9 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-  plugin:
-    androidPackage: io.flutter.plugins.flutter_plugin_android_lifecycle
-    mainClass: io.flutter.plugins.flutter_plugin_android_lifecycle.FlutterAndroidLifecyclePlugin
+  # plugin:
+  #   androidPackage: io.flutter.plugins.flutter_plugin_android_lifecycle
+  #   mainClass: io.flutter.plugins.flutter_plugin_android_lifecycle.FlutterAndroidLifecyclePlugin
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

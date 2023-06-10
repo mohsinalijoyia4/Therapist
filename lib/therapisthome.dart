@@ -1,8 +1,9 @@
-import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:docapp/patientlist.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 class TherapistAppHomePage extends StatefulWidget {
   TherapistAppHomePage({super.key});
@@ -12,17 +13,95 @@ class TherapistAppHomePage extends StatefulWidget {
 }
 
 class _TherapistAppHomePageState extends State<TherapistAppHomePage> {
-  File? _selectedImage;
+  String? _profileImageUrl;
   String nameofTherapist = 'John';
-  Future<void> _selectImageFromGallery() async {
-    final imagePicker = ImagePicker();
-    final pickedImage =
-        await imagePicker.pickImage(source: ImageSource.gallery);
-    if (pickedImage != null) {
-      setState(() {
-        _selectedImage = File(pickedImage.path);
-      });
+  Future<String?> fetchTherapistName(String therapistId) async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('therapists')
+          .doc(therapistId)
+          .get();
+      if (snapshot.exists) {
+        final data = snapshot.data() as Map<String, dynamic>;
+        final therapistName = data['name'] as String?;
+        return therapistName;
+      }
+    } catch (e) {
+      print('Error fetching therapist name: $e');
     }
+    return null;
+  }
+
+  Future<void> _fetchTherapistName() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String therapistId = user.uid;
+      String? therapistName = await fetchTherapistName(therapistId);
+      if (therapistName != null) {
+        setState(() {
+          nameofTherapist = therapistName;
+        });
+      }
+    }
+  }
+
+  // Future<String?> fetchImageURL(String imagePath) async {
+  //   final ref =
+  //       firebase_storage.FirebaseStorage.instance.ref().child(imagePath);
+  //   try {
+  //     final downloadURL = await ref.getDownloadURL();
+  //     return downloadURL;
+  //   } catch (e) {
+  //     print('Error fetching image URL: $e');
+  //     return null;
+  //   }
+  // }
+
+  Future<void> _loadProfileImage() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String userId = user.uid;
+      Reference storageRef = FirebaseStorage.instance
+          .ref()
+          .child('therapists')
+          .child('profile_images')
+          .child(userId);
+
+      try {
+        String downloadURL = await storageRef.getDownloadURL();
+        setState(() {
+          _profileImageUrl = downloadURL;
+        });
+      } catch (error) {
+        // Handle the error by setting a default profile picture
+        setState(() {
+          _profileImageUrl = 'assets/images/user.png';
+        });
+        print('Error loading profile image: $error');
+      }
+    }
+  }
+
+  // Future<void> _fetchAndSetProfileImage() async {
+  //   User? user = FirebaseAuth.instance.currentUser;
+  //   if (user != null) {
+  //     String imagePath =
+  //         'therapists/profile_images/${user.uid}.jpg'; // Update with the correct image path
+  //     String? imageUrl = await fetchImageURL(imagePath);
+  //     if (imageUrl != null) {
+  //       setState(() {
+  //         _profileImageUrl = imageUrl;
+  //       });
+  //     }
+  //   }
+  // }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileImage();
+    _fetchTherapistName();
+    // _fetchAndSetProfileImage();
   }
 
   @override
@@ -40,9 +119,10 @@ class _TherapistAppHomePageState extends State<TherapistAppHomePage> {
         elevation: 1.5,
         actions: [
           CircleAvatar(
-            backgroundImage:
-                _selectedImage != null ? FileImage(_selectedImage!) : null,
-           
+            radius: 40,
+            backgroundImage: _profileImageUrl!.isNotEmpty
+                ? NetworkImage(_profileImageUrl!)
+                : Image.asset('assets/images/user.png').image,
           ),
         ],
       ),
@@ -76,8 +156,11 @@ class _TherapistAppHomePageState extends State<TherapistAppHomePage> {
                 ),
                 const SizedBox(height: 20.0),
                 GestureDetector(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => PatientListPage()));
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PatientListPage()));
                   },
                   child: Container(
                     width: size.width,

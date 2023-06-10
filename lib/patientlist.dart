@@ -1,8 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 class PatientListPage extends StatefulWidget {
   const PatientListPage({Key? key});
@@ -19,7 +18,6 @@ class _PatientListPageState extends State<PatientListPage> {
     super.initState();
     // Fetch user data from Firestore
     _fetchUserData();
-    // _fetchProfilePictureURL();
   }
 
   Future<String> _fetchProfilePictureURL(String imagePath) async {
@@ -42,11 +40,13 @@ class _PatientListPageState extends State<PatientListPage> {
       QuerySnapshot querySnapshot = await firestore.collection('users').get();
       List<Map<String, dynamic>> users = [];
 
-      querySnapshot.docs.forEach((doc) {
-        Map<String, dynamic> user = doc.data()! as Map<String,
-            dynamic>; // Cast to Map<String, dynamic> with assertion
+      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+        Map<String, dynamic> user = doc.data()! as Map<String, dynamic>;
+        String profilePictureURL =
+            await _fetchProfilePictureURL(user['profileImage']);
+        user['profilePictureURL'] = profilePictureURL;
         users.add(user);
-      });
+      }
 
       setState(() {
         patientList = users;
@@ -55,19 +55,6 @@ class _PatientListPageState extends State<PatientListPage> {
       print('Error fetching user data: $e');
     }
   }
-
-// void addPatientToList() {
-    // Create a map for the patient details
-    // Map<String, dynamic> patientDetails = {
-    //   'name': patientName,
-    //   'age': patientAge,
-    //   'contact': patientContact,
-    //   'id': id,
-    // };
-
-    // Add the patient details to the list
-    // patientList.add(patientDetails);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -105,8 +92,7 @@ class _PatientListPageState extends State<PatientListPage> {
                       userDetails['name'],
                       userDetails['age'],
                       userDetails['contact'],
-                      userDetails['id'],
-                      userDetails['profileImage'],
+                      userDetails['profilePictureURL'],
                     );
                   },
                 )
@@ -119,17 +105,9 @@ class _PatientListPageState extends State<PatientListPage> {
   }
 
   Widget detailedContainer(Size size, String patientName, String patientAge,
-      String patientContact, int id, String profilePictureURL) {
-    bool isExpanded = false;
-
-    void toggleExpansion() {
-      setState(() {
-        isExpanded = !isExpanded;
-      });
-    }
-
+      String patientContact, String profilePictureURL) {
     return Container(
-      height: isExpanded ? size.height * 0.5 : size.height * 0.25,
+      height: size.height * 0.25,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
@@ -195,10 +173,6 @@ class _PatientListPageState extends State<PatientListPage> {
                       "Contact: $patientContact",
                       style: TextStyle(fontSize: 15, color: Colors.black),
                     ),
-                    Text(
-                      "ID: $id",
-                      style: TextStyle(fontSize: 15, color: Colors.black),
-                    ),
                   ],
                 ),
               ],
@@ -210,36 +184,6 @@ class _PatientListPageState extends State<PatientListPage> {
               color: Colors.grey,
               thickness: 1.0,
             ),
-            GestureDetector(
-              onTap: toggleExpansion,
-              child: Row(
-                children: [
-                  Icon(
-                    isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    "Progress Details",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (isExpanded)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  "Diagnosis",
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
           ],
         ),
       ),
