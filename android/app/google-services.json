@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "626684766436",
+    "project_id": "therapist-app-814ae",
+    "storage_bucket": "therapist-app-814ae.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:626684766436:android:f663420dacf003e477e4f1",
+        "android_client_info": {
+          "package_name": "com.vexillatech.therapist"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "626684766436-7ujbg1nao4tq67rdqeaa497rej40eso1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnzgrV2wF9gXj_mv8EENWkN_U-BT1gNB8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "626684766436-7ujbg1nao4tq67rdqeaa497rej40eso1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
