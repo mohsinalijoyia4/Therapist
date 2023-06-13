@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:docapp/therapistprofile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:docapp/patientlist.dart';
@@ -13,7 +14,7 @@ class TherapistAppHomePage extends StatefulWidget {
 }
 
 class _TherapistAppHomePageState extends State<TherapistAppHomePage> {
-  String? _profileImageUrl;
+  String _profileImageUrl='';
   String nameofTherapist = 'John';
   Future<String?> fetchTherapistName(String therapistId) async {
     try {
@@ -45,18 +46,6 @@ class _TherapistAppHomePageState extends State<TherapistAppHomePage> {
     }
   }
 
-  // Future<String?> fetchImageURL(String imagePath) async {
-  //   final ref =
-  //       firebase_storage.FirebaseStorage.instance.ref().child(imagePath);
-  //   try {
-  //     final downloadURL = await ref.getDownloadURL();
-  //     return downloadURL;
-  //   } catch (e) {
-  //     print('Error fetching image URL: $e');
-  //     return null;
-  //   }
-  // }
-
   Future<void> _loadProfileImage() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -73,7 +62,7 @@ class _TherapistAppHomePageState extends State<TherapistAppHomePage> {
           _profileImageUrl = downloadURL;
         });
       } catch (error) {
-        // Handle the error by setting a default profile picture
+        // Handle the error by setting a default profile picture or displaying an error message
         setState(() {
           _profileImageUrl = 'assets/images/user.png';
         });
@@ -118,11 +107,19 @@ class _TherapistAppHomePageState extends State<TherapistAppHomePage> {
         leading: Icon(Icons.menu),
         elevation: 1.5,
         actions: [
-          CircleAvatar(
-            radius: 40,
-            backgroundImage: _profileImageUrl!.isNotEmpty
-                ? NetworkImage(_profileImageUrl!)
-                : Image.asset('assets/images/user.png').image,
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => TherapistProfileScreen()));
+            },
+            child: CircleAvatar(
+              radius: 40,
+              backgroundImage: _profileImageUrl.isNotEmpty
+                  ? NetworkImage(_profileImageUrl)
+                  : Image.asset('assets/images/user.png').image,
+            ),
           ),
         ],
       ),

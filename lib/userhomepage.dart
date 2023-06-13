@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:docapp/userpinprofile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'loginsignup/constants.dart';
 
@@ -155,6 +156,82 @@ class _UserHomePageState extends State<UserHomePage> {
     );
   }
 
+  String _profileImageUrl = '';
+  String _name = '';
+  String _email = '';
+  List<Map<String, dynamic>> _therapists = [];
+  String _phone = '';
+
+  Future<void> _fetchUserData() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String userId = user.uid;
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('therapists')
+          .doc(userId)
+          .get();
+
+      if (snapshot.exists) {
+        setState(() {
+          _name = snapshot.get('name');
+          _email = snapshot.get('email');
+          _phone = snapshot.get('phone');
+        });
+      } else {
+        print("No user exists");
+      }
+    }
+  }
+
+  Future<void> _fetchTherapists() async {
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('therapists').get();
+
+    List<Map<String, dynamic>> therapists = [];
+
+    for (var doc in snapshot.docs) {
+      Map<String, dynamic> therapistData = doc.data() as Map<String, dynamic>;
+      therapists.add(therapistData);
+    }
+
+    setState(() {
+      _therapists = therapists;
+    });
+  }
+
+  Future<void> _loadProfileImage() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String userId = user.uid;
+      Reference storageRef = FirebaseStorage.instance
+          .ref()
+          .child('therapists')
+          .child('profile_images')
+          .child(userId);
+
+      try {
+        String downloadURL = await storageRef.getDownloadURL();
+        setState(() {
+          _profileImageUrl = downloadURL;
+        });
+      } catch (error) {
+        // Handle the error by setting a default profile picture or displaying an error message
+        setState(() {
+          _profileImageUrl = 'assets/images/user.png';
+        });
+        print('Error loading profile image: $error');
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTherapists();
+    _fetchUserData();
+    _loadProfileImage();
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -230,25 +307,12 @@ class _UserHomePageState extends State<UserHomePage> {
                     decoration:
                         BoxDecoration(borderRadius: BorderRadius.circular(10)),
                     height: 300.0,
-                    child: ListView(
+                    child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      children: [
-                        _buildTherapistCard(
-                          name: 'Dr. Emma Thompson',
-                          specialization: 'Depression, Anxiety',
-                          imageUrl: 'assets/images/therapist1.jpg',
-                        ),
-                        _buildTherapistCard(
-                          name: 'Dr. Mark Johnson',
-                          specialization: 'Relationships, Stress',
-                          imageUrl: 'assets/images/therapist2.jpg',
-                        ),
-                        _buildTherapistCard(
-                          name: 'Dr. Sarah Collins',
-                          specialization: 'Trauma, Grief',
-                          imageUrl: 'assets/images/therapist3.jpg',
-                        ),
-                      ],
+                      itemCount: 1,
+                      itemBuilder: (BuildContext context, int index) {
+                        return _buildTherapistCard(index);
+                      },
                     ),
                   ),
                 ],
@@ -260,10 +324,11 @@ class _UserHomePageState extends State<UserHomePage> {
     );
   }
 
-  Widget _buildTherapistCard(
-      {required String name,
-      required String specialization,
-      required String imageUrl}) {
+  Widget _buildTherapistCard(int index) {
+    String name = _therapists[index]['name'];
+    String specialization = _therapists[index]['specialization'];
+    // String imageUrl = _therapists[index]['imageUrl'];
+
     return Container(
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
       width: 200.0,
@@ -271,10 +336,10 @@ class _UserHomePageState extends State<UserHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircleAvatar(
-              radius: 60.0,
-              backgroundImage: AssetImage(imageUrl),
-            ),
+            // CircleAvatar(
+            //   radius: 60.0,
+            //   backgroundImage: AssetImage(imageUrl),
+            // ),
             const SizedBox(height: 10.0),
             Text(
               name,
@@ -311,67 +376,69 @@ class _UserHomePageState extends State<UserHomePage> {
   }
 }
 
-class CategoryCard extends StatelessWidget {
-  final String imageSrc;
-  final String title;
-  final void Function() press;
-  const CategoryCard({
-    Key? key,
-    required this.imageSrc,
-    required this.title,
-    required this.press,
-  }) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(13),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(13),
-            boxShadow: [
-              const BoxShadow(
-                offset: Offset(0, 17),
-                blurRadius: 17,
-                spreadRadius: -23,
-                color: Colors.black12,
-              ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: press,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: <Widget>[
-                    const Spacer(),
-                    Container(
-                      height: 80,
-                      child: Image.asset(
-                        imageSrc,
-                        width: 64,
-                        height: 64,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: kTextFieldFill),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+
+// class CategoryCard extends StatelessWidget {
+//   final String imageSrc;
+//   final String title;
+//   final void Function() press;
+//   const CategoryCard({
+//     Key? key,
+//     required this.imageSrc,
+//     required this.title,
+//     required this.press,
+//   }) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Card(
+//       elevation: 5,
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+//       child: ClipRRect(
+//         borderRadius: BorderRadius.circular(13),
+//         child: Container(
+//           decoration: BoxDecoration(
+//             color: Colors.white,
+//             borderRadius: BorderRadius.circular(13),
+//             boxShadow: [
+//               const BoxShadow(
+//                 offset: Offset(0, 17),
+//                 blurRadius: 17,
+//                 spreadRadius: -23,
+//                 color: Colors.black12,
+//               ),
+//             ],
+//           ),
+//           child: Material(
+//             color: Colors.transparent,
+//             child: InkWell(
+//               onTap: press,
+//               child: Padding(
+//                 padding: const EdgeInsets.all(20.0),
+//                 child: Column(
+//                   children: <Widget>[
+//                     const Spacer(),
+//                     Container(
+//                       height: 80,
+//                       child: Image.asset(
+//                         imageSrc,
+//                         width: 64,
+//                         height: 64,
+//                       ),
+//                     ),
+//                     const Spacer(),
+//                     Text(
+//                       title,
+//                       textAlign: TextAlign.center,
+//                       style: const TextStyle(color: kTextFieldFill),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

@@ -1,7 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 class PatientListPage extends StatefulWidget {
   const PatientListPage({Key? key});
@@ -20,40 +18,20 @@ class _PatientListPageState extends State<PatientListPage> {
     _fetchUserData();
   }
 
-  Future<String> _fetchProfilePictureURL(String imagePath) async {
-    FirebaseStorage storage = FirebaseStorage.instance;
-
-    try {
-      Reference ref = storage.ref(imagePath);
-      String downloadURL = await ref.getDownloadURL();
-      return downloadURL;
-    } catch (e) {
-      print('Error fetching profile picture: $e');
-      return ''; // Return empty string if an error occurs
-    }
-  }
-
   Future<void> _fetchUserData() async {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('users').get();
 
-    try {
-      QuerySnapshot querySnapshot = await firestore.collection('users').get();
-      List<Map<String, dynamic>> users = [];
+    List<Map<String, dynamic>> patients = [];
 
-      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-        Map<String, dynamic> user = doc.data()! as Map<String, dynamic>;
-        String profilePictureURL =
-            await _fetchProfilePictureURL(user['profileImage']);
-        user['profilePictureURL'] = profilePictureURL;
-        users.add(user);
-      }
-
-      setState(() {
-        patientList = users;
-      });
-    } catch (e) {
-      print('Error fetching user data: $e');
+    for (var doc in snapshot.docs) {
+      Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
+      patients.add(userData);
     }
+
+    setState(() {
+      patientList = patients;
+    });
   }
 
   @override
@@ -63,10 +41,6 @@ class _PatientListPageState extends State<PatientListPage> {
       backgroundColor: Colors.white24,
       appBar: AppBar(
         backgroundColor: Colors.white24,
-        leading: Icon(
-          Icons.arrow_back,
-          color: Colors.purpleAccent,
-        ),
         title: Text(
           "Patient List",
           style: TextStyle(fontSize: 18, color: Colors.purpleAccent),
@@ -84,18 +58,12 @@ class _PatientListPageState extends State<PatientListPage> {
               children: [
                 ListView.builder(
                   shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
                   itemCount: patientList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    Map<String, dynamic> userDetails = patientList[index];
-                    return detailedContainer(
-                      size,
-                      userDetails['name'],
-                      userDetails['age'],
-                      userDetails['contact'],
-                      userDetails['profilePictureURL'],
-                    );
+                  itemBuilder: (context, index) {
+                    return _buildPatientTile(patientList[index], index + 1);
                   },
-                )
+                ),
               ],
             ),
           ),
@@ -104,88 +72,26 @@ class _PatientListPageState extends State<PatientListPage> {
     );
   }
 
-  Widget detailedContainer(Size size, String patientName, String patientAge,
-      String patientContact, String profilePictureURL) {
+  Widget _buildPatientTile(Map<String, dynamic> patientData, int index) {
+    String? age = patientData['age'] as String?;
+    String? contact = patientData['contact'] as String?;
+    String? email = patientData['email'] as String?;
+
     return Container(
-      height: size.height * 0.25,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  height: size.height * 0.12,
-                  width: size.width * 0.22,
-                  decoration: BoxDecoration(
-                    color: Colors.black26,
-                    borderRadius: BorderRadius.circular(size.height * 0.2),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(size.height * 0.2),
-                    child: CachedNetworkImage(
-                      imageUrl: profilePictureURL,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) =>
-                          CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: size.width * 0.05,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          "Patient Details:",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.blueAccent,
-                          ),
-                        ),
-                        SizedBox(
-                          width: size.width * 0.2,
-                        ),
-                        Icon(
-                          Icons.chat_rounded,
-                        ),
-                      ],
-                    ),
-                    Text(
-                      "Name: $patientName",
-                      style: TextStyle(fontSize: 15, color: Colors.black),
-                    ),
-                    Text(
-                      "Age: $patientAge",
-                      style: TextStyle(fontSize: 15, color: Colors.black),
-                    ),
-                    Text(
-                      "Contact: $patientContact",
-                      style: TextStyle(fontSize: 15, color: Colors.black),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(
-              height: size.height * 0.02,
-            ),
-            Divider(
-              color: Colors.grey,
-              thickness: 1.0,
-            ),
-          ],
-        ),
+      decoration: BoxDecoration(color: Colors.white),
+      child: ExpansionTile(
+        title: Text('Patient $index'),
+        children: [
+          ListTile(
+            title: Text('Age: ${age ?? ''}'),
+          ),
+          ListTile(
+            title: Text('Contact: ${contact ?? ''}'),
+          ),
+          ListTile(
+            title: Text('Email: ${email ?? ''}'),
+          ),
+        ],
       ),
     );
   }

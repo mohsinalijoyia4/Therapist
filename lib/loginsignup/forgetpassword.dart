@@ -100,6 +100,13 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                             controller: _emailController, // Capture email input
                             hintText: 'Phone, email or username',
                             inputType: TextInputType.text,
+                            validator: (value) {
+          if (value.isEmpty) {
+            return 'Please enter your email or username';
+          }
+          // Add additional validation logic if needed
+          return null;
+        },
                           ),
                         ],
                       ),

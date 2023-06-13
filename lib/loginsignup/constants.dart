@@ -41,7 +41,7 @@ class MyTextField extends StatelessWidget {
     Key? key,
     required this.controller,
     required this.hintText,
-    required this.inputType,
+    required this.inputType, required String? Function(dynamic value) validator,
   }) : super(key: key);
   final String hintText;
   final TextInputType inputType;
@@ -85,7 +85,7 @@ class MyPasswordField extends StatelessWidget {
     Key? key,
     required this.isPasswordVisible,
     required this.onTap,
-    required this.controller,
+    required this.controller, required String? Function(dynamic value) validator,
   }) : super(key: key);
   final TextEditingController controller;
   final bool isPasswordVisible;

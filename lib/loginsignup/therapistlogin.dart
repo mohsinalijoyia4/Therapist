@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:docapp/loginsignup/textbutton.dart';
 import 'package:docapp/loginsignup/therapistregis.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,9 +17,11 @@ class TherapistLoginPage extends StatefulWidget {
 
 class _TherapistLoginPageState extends State<TherapistLoginPage> {
   bool isPasswordVisible = true;
+  bool isLoading = false;
+  // final _formKey = GlobalKey<FormState>();
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> initializeFirebase() async {
     await Firebase.initializeApp();
@@ -28,6 +31,8 @@ class _TherapistLoginPageState extends State<TherapistLoginPage> {
   void initState() {
     super.initState();
     initializeFirebase();
+    _emailController.addListener(() {});
+    _passwordController.addListener(() {});
   }
 
   @override
@@ -37,19 +42,71 @@ class _TherapistLoginPageState extends State<TherapistLoginPage> {
     super.dispose();
   }
 
-  void _signInTherapist() async {
-    try {
-      final String email = _emailController.text.trim();
-      final String password = _passwordController.text.trim();
+  Future<void> _signInTherapist() async {
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
 
+    if (email.isEmpty) {
+      // Show alert dialog for incomplete email
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Empty User Email"),
+            content: Text("Email of user could not be empty."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    } else if (password.isEmpty) {
+      // Show alert dialog for incomplete password
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Empty Password"),
+            content: Text("Password of user could not be empty."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true; // Start loading
+    });
+
+    try {
       final UserCredential userCredential =
-          await _auth.signInWithEmailAndPassword(
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      if (userCredential.user != null) {
-        // Login successful, navigate to the next screen or perform desired actions
+      // User is successfully authenticated
+      // Check if the user exists in the 'users' collection
+      final userDocument = await FirebaseFirestore.instance
+          .collection('therapists')
+          .doc(userCredential.user!.uid)
+          .get();
+
+      if (userDocument.exists) {
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -57,18 +114,19 @@ class _TherapistLoginPageState extends State<TherapistLoginPage> {
           ),
         );
       } else {
+        // User does not exist in the 'users' collection
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Error'),
-              content: Text('Invalid email or password.'),
-              actions: <Widget>[
+              title: Text("Invalid User"),
+              content: Text("You are not authorized as a user."),
+              actions: [
                 TextButton(
-                  child: Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
+                  child: Text("OK"),
                 ),
               ],
             );
@@ -76,28 +134,13 @@ class _TherapistLoginPageState extends State<TherapistLoginPage> {
         );
       }
     } catch (e) {
-      if (e is FirebaseAuthException) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Error'),
-              content: Text(e.message ?? 'An error occurred.'),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('OK'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      } else {
-        // Login failed, handle the error
-        print('Error logging in therapist: $e');
-      }
+      print("Sign-in error: $e");
+      // Handle sign-in errors
+      // ...
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -107,6 +150,7 @@ class _TherapistLoginPageState extends State<TherapistLoginPage> {
       backgroundColor: Colors.white24,
       appBar: AppBar(
         backgroundColor: Colors.white24,
+        foregroundColor: Colors.white24,
         elevation: 0,
         leading: IconButton(
           onPressed: () {
@@ -124,84 +168,143 @@ class _TherapistLoginPageState extends State<TherapistLoginPage> {
               hasScrollBody: false,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      fit: FlexFit.loose,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                child: Form(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        fit: FlexFit.loose,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Welcome back.",
+                              style: kHeadline,
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              "You've been missed! Our Therapist",
+                              style: kBodyText2,
+                            ),
+                            SizedBox(
+                              height: 60,
+                            ),
+                            TextFormField(
+                              style: TextStyle(color: Colors.white),
+                              controller: _emailController,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: kTextFieldFill,
+                                labelText: 'Email',
+                                labelStyle: TextStyle(color: Colors.white),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide:
+                                      const BorderSide(color: Colors.white),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide:
+                                      const BorderSide(color: Colors.red),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Email is required';
+                                }
+                                if (!RegExp(
+                                        r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$')
+                                    .hasMatch(value)) {
+                                  return 'Invalid email address';
+                                }
+
+                                // Add email validation logic if needed
+                                return null;
+                              },
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            TextFormField(
+                              style: TextStyle(color: Colors.white),
+                              controller: _passwordController,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: kTextFieldFill,
+                                labelText: 'Password',
+                                labelStyle: TextStyle(color: Colors.white),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide:
+                                      const BorderSide(color: Colors.red),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Password is required';
+                                }
+                                // Add password validation logic if needed
+                                return null;
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Welcome back.",
-                            style: kHeadline,
+                            "Don't have an account? ",
+                            style: kBodyText,
                           ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            "You've been missed! Our Therapist",
-                            style: kBodyText2,
-                          ),
-                          SizedBox(
-                            height: 60,
-                          ),
-                          MyTextField(
-                            controller: _emailController,
-                            hintText: 'Phone, email or username',
-                            inputType: TextInputType.text,
-                          ),
-                          MyPasswordField(
-                            controller: _passwordController,
-                            isPasswordVisible: isPasswordVisible,
+                          GestureDetector(
                             onTap: () {
-                              setState(() {
-                                isPasswordVisible = !isPasswordVisible;
-                              });
+                              Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (context) =>
+                                      TherapistRegistrationPage(),
+                                ),
+                              );
                             },
-                          ),
+                            child: Text(
+                              'Register',
+                              style: kBodyText.copyWith(
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
                         ],
                       ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Don't have an account? ",
-                          style: kBodyText,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              CupertinoPageRoute(
-                                builder: (context) =>
-                                    TherapistRegistrationPage(),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            'Register',
-                            style: kBodyText.copyWith(
-                              color: Colors.white,
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    MyTextButton(
-                      buttonName: 'Sign In',
-                      onTap: _signInTherapist,
-                      bgColor: Colors.white,
-                      textColor: Colors.black87,
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                  ],
+                      SizedBox(
+                        height: 20,
+                      ),
+                      MyTextButton(
+                        buttonName: isLoading ? 'Signing In...' : 'Sign In',
+                        onTap: _signInTherapist,
+                        bgColor: Colors.white,
+                        textColor: Colors.black87,
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

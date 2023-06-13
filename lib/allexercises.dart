@@ -1,5 +1,6 @@
-import 'package:docapp/visualmemory.dart';
-import 'package:docapp/wordformation.dart';
+import 'package:docapp/games/minesweerpr/main_screen.dart';
+import 'package:docapp/games/rock_paper_scissors/main_screen.dart';
+import 'package:docapp/games/wordly/screens/game_screen.dart';
 import 'package:flutter/material.dart';
 import 'game.dart';
 import 'loginsignup/constants.dart';
@@ -72,6 +73,7 @@ class DetailsScreen extends StatelessWidget {
                       runSpacing: 20,
                       children: <Widget>[
                         SeassionCard(
+                          isDone: true,
                           text: "Visual Memory ",
                           seassionNum: 1,
                           // isDone: true,
@@ -79,22 +81,26 @@ class DetailsScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const VisualMemory()),
+                                  builder: (context) => MainScreen()),
                             );
                           },
                         ),
                         SeassionCard(
+                                                    isDone: true,
+
                           text: "Word Formation ",
                           seassionNum: 2,
                           press: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const WordFormation()),
+                                  builder: (context) => const GameScreen()),
                             );
                           },
                         ),
                         SeassionCard(
+                                                    isDone: true,
+
                           text: "Matching Game ",
                           seassionNum: 3,
                           press: () {
@@ -106,11 +112,20 @@ class DetailsScreen extends StatelessWidget {
                           },
                         ),
                         SeassionCard(
+                                                    isDone: true,
+
                           text: "Visual Memory ",
                           seassionNum: 4,
-                          press: () {},
+                          press: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const MainScreenRock()),
+                            );
+                            
+                          },
                         ),
-                        ],
+                      ],
                     ),
                     const SizedBox(height: 20),
                     const Text(

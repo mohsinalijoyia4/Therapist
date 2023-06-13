@@ -28,6 +28,8 @@ class _UserSignInState extends State<UserSignIn> {
   void initState() {
     super.initState();
     initializeFirebase();
+    _emailController.addListener(() {});
+    _passwordController.addListener(() {});
   }
 
   Future<void> signIn() async {
@@ -36,11 +38,43 @@ class _UserSignInState extends State<UserSignIn> {
 
     if (email.isEmpty) {
       // Show alert dialog for incomplete email
-      // ...
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Empty User Email"),
+            content: Text("Email of user could not be empty."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
       return;
     } else if (password.isEmpty) {
       // Show alert dialog for incomplete password
-      // ...
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Empty Password"),
+            content: Text("Password of user could not be empty."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
       return;
     }
 
@@ -162,6 +196,13 @@ class _UserSignInState extends State<UserSignIn> {
                                   _emailController, // Capture email input
                               hintText: 'email',
                               inputType: TextInputType.text,
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  return 'Please enter your email or username';
+                                }
+                                // Add additional validation logic if needed
+                                return null;
+                              },
                             ),
                             MyPasswordField(
                               controller:
@@ -171,6 +212,13 @@ class _UserSignInState extends State<UserSignIn> {
                                 setState(() {
                                   isPasswordVisible = !isPasswordVisible;
                                 });
+                              },
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  return 'Please enter your password';
+                                }
+                                // Add additional validation logic if needed
+                                return null;
                               },
                             ),
                             Row(

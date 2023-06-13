@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:docapp/loginsignup/userlogin.dart';
-import 'package:docapp/loginsignup/utils/utils.dart';
+import 'package:docapp/loginsignup/utilss/utils.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -51,14 +51,18 @@ class _UserRegistrationState extends State<UserRegistration> {
       final userUid = userCredential.user!.uid;
 
       // Store additional user details in Firestore
-      await _firestore.collection('users').doc(userUid).set({
-        'email': emailController.text.trim(),
-        'password': passwordController.text.trim(),
-        'name': _nameController.text.trim(),
-        'phone': _phoneController.text.trim(),
-        'age': _ageController.text.trim(),
-        'profileImage': '', // Placeholder for user profile image URL
-      }).then((value) {})
+      await _firestore
+          .collection('users')
+          .doc(userUid)
+          .set({
+            'email': emailController.text.trim(),
+            'password': passwordController.text.trim(),
+            'name': _nameController.text.trim(),
+            'phone': _phoneController.text.trim(),
+            'age': _ageController.text.trim(),
+            'profileImage': '', // Placeholder for user profile image URL
+          })
+          .then((value) {})
           .onError((error, stackTrace) {
             Utils().toastMasseg(error.toString());
           });
@@ -79,7 +83,7 @@ class _UserRegistrationState extends State<UserRegistration> {
             .doc(userUid)
             .update({'profileImage': imageUrl});
       }
-
+    
       // Registration successful, navigate to the next screen
       Navigator.push(
         context,
@@ -174,7 +178,8 @@ class _UserRegistrationState extends State<UserRegistration> {
                           radius: 50,
                           backgroundImage:
                               _image != null ? FileImage(_image!) : null,
-                          child: _image == null ? const Icon(Icons.person) : null,
+                          child:
+                              _image == null ? const Icon(Icons.person) : null,
                         ),
                       ),
                       SizedBox(
@@ -196,6 +201,10 @@ class _UserRegistrationState extends State<UserRegistration> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                             borderSide: const BorderSide(color: Colors.white),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(color: Colors.red),
                           ),
                         ),
                         style: const TextStyle(
@@ -230,6 +239,10 @@ class _UserRegistrationState extends State<UserRegistration> {
                             borderRadius: BorderRadius.circular(10.0),
                             borderSide: const BorderSide(color: Colors.white),
                           ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(color: Colors.red),
+                          ),
                         ),
                         style: const TextStyle(
                             color: Colors.white), // Set input text color
@@ -258,6 +271,10 @@ class _UserRegistrationState extends State<UserRegistration> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                             borderSide: const BorderSide(color: Colors.white),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(color: Colors.red),
                           ),
                         ),
                         style: const TextStyle(
@@ -288,6 +305,10 @@ class _UserRegistrationState extends State<UserRegistration> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                             borderSide: const BorderSide(color: Colors.white),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(color: Colors.red),
                           ),
                         ),
                         style: const TextStyle(
@@ -321,12 +342,19 @@ class _UserRegistrationState extends State<UserRegistration> {
                             borderRadius: BorderRadius.circular(10.0),
                             borderSide: const BorderSide(color: Colors.white),
                           ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(color: Colors.red),
+                          ),
                         ),
                         style: const TextStyle(
                             color: Colors.white), // Set input text color
                         validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Confirm password is required';
+                          if (value == null) {
+                            return 'Password is required';
+                          }
+                          if (value.length < 8) {
+                            return 'Password should be at least 8 characters long';
                           }
                           if (value != passwordController.text) {
                             return 'Passwords do not match';
@@ -351,6 +379,10 @@ class _UserRegistrationState extends State<UserRegistration> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                             borderSide: const BorderSide(color: Colors.white),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(color: Colors.red),
                           ),
                         ),
                         style: const TextStyle(

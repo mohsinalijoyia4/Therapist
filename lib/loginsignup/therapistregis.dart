@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:docapp/loginsignup/therapistlogin.dart';
-import 'package:docapp/loginsignup/utils/utils.dart';
+import 'package:docapp/loginsignup/utilss/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +26,18 @@ class _TherapistRegistrationPageState extends State<TherapistRegistrationPage> {
   final _nameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
   File? _image;
+  
+  @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(() {});
+    _passwordController.addListener(() {});
+    _nameController.addListener(() {});
+    _phoneNumberController.addListener(() {});
+    _confirmPasswordController.addListener(() {});
+    
+  }
+
 
   Future<void> _selectProfilePicture() async {
     final ImagePicker _picker = ImagePicker();
@@ -41,7 +53,26 @@ class _TherapistRegistrationPageState extends State<TherapistRegistrationPage> {
   void _registerTherapist() async {
     FirebaseAuth auth = FirebaseAuth.instance;
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-
+    if (_passwordController.text.trim() !=
+        _confirmPasswordController.text.trim()) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Password and Confirm Password do not match.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
     try {
       final UserCredential userCredential =
           await auth.createUserWithEmailAndPassword(
@@ -179,11 +210,21 @@ class _TherapistRegistrationPageState extends State<TherapistRegistrationPage> {
                         borderRadius: BorderRadius.circular(10.0),
                         borderSide: const BorderSide(color: Colors.white),
                       ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.red),
+                      ),
                     ),
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Email is required';
                       }
+                      if (!RegExp(
+                              r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$')
+                          .hasMatch(value)) {
+                        return 'Invalid email address';
+                      }
+
                       // Add email validation logic if needed
                       return null;
                     },
@@ -204,6 +245,10 @@ class _TherapistRegistrationPageState extends State<TherapistRegistrationPage> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
                         borderSide: BorderSide(color: Colors.white),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.red),
                       ),
                     ),
                     validator: (value) {
@@ -230,6 +275,10 @@ class _TherapistRegistrationPageState extends State<TherapistRegistrationPage> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
                         borderSide: BorderSide(color: Colors.white),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.red),
                       ),
                     ),
                     validator: (value) {
@@ -258,6 +307,10 @@ class _TherapistRegistrationPageState extends State<TherapistRegistrationPage> {
                         borderRadius: BorderRadius.circular(10.0),
                         borderSide: BorderSide(color: Colors.white),
                       ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.red),
+                      ),
                     ),
                     validator: (value) {
                       if (value!.isEmpty) {
@@ -285,12 +338,14 @@ class _TherapistRegistrationPageState extends State<TherapistRegistrationPage> {
                         borderRadius: BorderRadius.circular(10.0),
                         borderSide: BorderSide(color: Colors.white),
                       ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.red),
+                      ),
                     ),
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Confirm password is required';
-                      } else if (_passwordController != _passwordController) {
-                        return 'should is not same same';
                       }
                       // Add confirm password validation logic if needed
                       return null;
@@ -303,25 +358,6 @@ class _TherapistRegistrationPageState extends State<TherapistRegistrationPage> {
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           _registerTherapist();
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('Error'),
-                                content:
-                                    Text('Please fix the errors in the form.'),
-                                actions: <Widget>[
-                                  TextButton(
-                                    child: Text('OK'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          );
                         }
                       },
                       style: ButtonStyle(

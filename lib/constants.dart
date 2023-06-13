@@ -1,7 +1,7 @@
-import 'dart:io';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 // Colors
 const kBackgroundColor = Color(0xff191720);
@@ -140,27 +140,50 @@ class DrawerWidget extends StatefulWidget {
 }
 
 class _DrawerWidgetState extends State<DrawerWidget> {
-  late ImagePicker _imagePicker;
-  late PickedFile _pickedFile;
-  String? _profilePicturePath;
+  String? _profileImageUrl;
+  String? nameofTherapist;
+
+  Future<void> fetchUserName() async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final userDoc =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    if (userDoc.exists) {
+      setState(() {
+        nameofTherapist = userDoc['name'];
+      });
+    }
+  }
+
+  Future<void> _loadProfileImage() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String userId = user.uid;
+      Reference storageRef = FirebaseStorage.instance
+          .ref()
+          .child('users')
+          .child('profile_images')
+          .child(userId);
+
+      try {
+        String downloadURL = await storageRef.getDownloadURL();
+        setState(() {
+          _profileImageUrl = downloadURL;
+        });
+      } catch (error) {
+        // Handle the error by setting a default profile picture
+        setState(() {
+          _profileImageUrl = 'assets/images/user.png';
+        });
+        print('Error loading profile image: $error');
+      }
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _imagePicker = ImagePicker();
-    _profilePicturePath =
-        'assets/images/profile_picture.png'; // Default profile picture path
-  }
-
-  Future<void> _selectProfilePicture() async {
-    final pickedFile =
-        await _imagePicker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _pickedFile = pickedFile as PickedFile;
-        _profilePicturePath = _pickedFile.path;
-      });
-    }
+    fetchUserName();
+    _loadProfileImage();
   }
 
   @override
@@ -171,24 +194,21 @@ class _DrawerWidgetState extends State<DrawerWidget> {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(topRight: Radius.circular(20)),
               color: kBackgroundColor,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                GestureDetector(
-                  onTap: _selectProfilePicture,
-                  child: CircleAvatar(
-                    radius: 40,
-                    backgroundImage: _profilePicturePath != null
-                        ? FileImage(File(_profilePicturePath!))
-                            as ImageProvider<Object>
-                        : AssetImage('assets/images/profile_picture.png'),
-                  ),
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: _profileImageUrl!.isNotEmpty
+                      ? NetworkImage(_profileImageUrl!)
+                      : Image.asset('assets/images/user.png').image,
                 ),
                 SizedBox(height: 10),
                 Text(
-                  'Username',
+                  '$nameofTherapist',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,
