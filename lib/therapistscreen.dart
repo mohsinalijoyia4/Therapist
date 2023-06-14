@@ -1,4 +1,4 @@
-import 'package:docapp/patients.dart';
+import 'package:docapp/patientlist.dart';
 import 'package:docapp/therapisthome.dart';
 import 'package:flutter/material.dart';
 
@@ -32,7 +32,7 @@ class _TherapistScreenOneState extends State<TherapistScreenOne>
 
   final List<Widget> _pages = [
     TherapistAppHomePage(), 
-    AllPatients()
+    PatientListPage()
     ];
   @override
   Widget build(BuildContext context) {

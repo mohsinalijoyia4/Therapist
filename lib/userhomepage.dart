@@ -325,9 +325,14 @@ class _UserHomePageState extends State<UserHomePage> {
   }
 
   Widget _buildTherapistCard(int index) {
-    String name = _therapists[index]['name'];
-    String specialization = _therapists[index]['specialization'];
-    // String imageUrl = _therapists[index]['imageUrl'];
+    if (index >= _therapists.length) {
+      return Container(); // Return an empty container if the index is out of bounds
+    }
+
+    String name =
+        _therapists[index]['name'] ?? ''; // Assign an empty string if null
+    String specialization = _therapists[index]['specialization'] ??
+        ''; // Assign an empty string if null
 
     return Container(
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
@@ -336,10 +341,7 @@ class _UserHomePageState extends State<UserHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // CircleAvatar(
-            //   radius: 60.0,
-            //   backgroundImage: AssetImage(imageUrl),
-            // ),
+            // Add your desired avatar or image widget here
             const SizedBox(height: 10.0),
             Text(
               name,

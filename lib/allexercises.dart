@@ -1,8 +1,8 @@
-import 'package:docapp/games/minesweerpr/main_screen.dart';
-import 'package:docapp/games/rock_paper_scissors/main_screen.dart';
-import 'package:docapp/games/wordly/screens/game_screen.dart';
+import 'package:docapp/games/isDone/activity.dart';
+import 'package:docapp/games/isDone/activityfour.dart';
+import 'package:docapp/games/isDone/activitythree.dart';
+import 'package:docapp/games/isDone/activitytwo.dart';
 import 'package:flutter/material.dart';
-import 'game.dart';
 import 'loginsignup/constants.dart';
 
 class DetailsScreen extends StatelessWidget {
@@ -81,48 +81,44 @@ class DetailsScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => MainScreen()),
+                                  builder: (context) => ActivityOneScreen()),
                             );
                           },
-                        ),
+                        ), //MainScreen
                         SeassionCard(
-                                                    isDone: true,
-
+                          isDone: true,
                           text: "Word Formation ",
                           seassionNum: 2,
                           press: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const GameScreen()),
+                                  builder: (context) => const ActivityTwoScreen()),
                             );
                           },
                         ),
                         SeassionCard(
-                                                    isDone: true,
-
+                          isDone: true,
                           text: "Matching Game ",
                           seassionNum: 3,
                           press: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const MatchingGame()),
+                                  builder: (context) => const ActivityThreeScreen()),
                             );
                           },
                         ),
                         SeassionCard(
-                                                    isDone: true,
-
+                          isDone: true,
                           text: "Visual Memory ",
                           seassionNum: 4,
                           press: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const MainScreenRock()),
+                                  builder: (context) => const ActivityFourScreen()),
                             );
-                            
                           },
                         ),
                       ],
