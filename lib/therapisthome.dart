@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:docapp/constants.dart';
 import 'package:docapp/therapistprofile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -14,7 +15,7 @@ class TherapistAppHomePage extends StatefulWidget {
 }
 
 class _TherapistAppHomePageState extends State<TherapistAppHomePage> {
-  String _profileImageUrl='';
+  String _profileImageUrl = '';
   String nameofTherapist = 'John';
   Future<String?> fetchTherapistName(String therapistId) async {
     try {
@@ -84,7 +85,7 @@ class _TherapistAppHomePageState extends State<TherapistAppHomePage> {
   //     }
   //   }
   // }
-
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
     super.initState();
@@ -97,14 +98,22 @@ class _TherapistAppHomePageState extends State<TherapistAppHomePage> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.white24,
+      drawer: DrawerTherapist(),
       appBar: AppBar(
         // title: const Text(
         //   'Therapist App',
         //   style: TextStyle(color: Colors.white),
         // ),
         backgroundColor: Colors.white24,
-        leading: Icon(Icons.menu),
+        leading: IconButton(
+          icon: Icon(Icons.menu),
+          onPressed: () {
+            _scaffoldKey.currentState?.openDrawer(); // Open the drawer
+          },
+        ),
+
         elevation: 1.5,
         actions: [
           GestureDetector(
@@ -362,6 +371,112 @@ class _TherapistAppHomePageState extends State<TherapistAppHomePage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class DrawerTherapist extends StatefulWidget {
+  const DrawerTherapist({super.key});
+
+  @override
+  _DrawerTherapistState createState() => _DrawerTherapistState();
+}
+
+class _DrawerTherapistState extends State<DrawerTherapist> {
+  String? _profileImageUrl;
+  String? nameofTherapist;
+
+  Future<void> fetchUserName() async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final userDoc = await FirebaseFirestore.instance
+        .collection('therapists')
+        .doc(userId)
+        .get();
+    if (userDoc.exists) {
+      setState(() {
+        nameofTherapist = userDoc['name'];
+      });
+    }
+  }
+
+  Future<void> _loadProfileImage() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String userId = user.uid;
+      Reference storageRef = FirebaseStorage.instance
+          .ref()
+          .child('therapists')
+          .child('profile_images')
+          .child(userId);
+
+      try {
+        String downloadURL = await storageRef.getDownloadURL();
+        setState(() {
+          _profileImageUrl = downloadURL;
+        });
+      } catch (error) {
+        // Handle the error by setting a default profile picture
+        setState(() {
+          _profileImageUrl = 'assets/images/therapist.png';
+        });
+        print('Error loading profile image: $error');
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserName();
+    _loadProfileImage();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(topRight: Radius.circular(20)),
+              color: kBackgroundColor,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: _profileImageUrl!.isNotEmpty
+                      ? NetworkImage(_profileImageUrl!)
+                      : Image.asset('assets/images/therapist.png').image,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  '$nameofTherapist',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            title: Text('Notification'),
+            onTap: () {
+              // Handle notification tap
+            },
+          ),
+          ListTile(
+            title: Text('Edit Profile'),
+            onTap: () {
+              // Handle edit profile tap
+            },
+          ),
+          // Add more items as needed
+        ],
       ),
     );
   }

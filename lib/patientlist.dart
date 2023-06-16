@@ -16,8 +16,7 @@ class _PatientListPageState extends State<PatientListPage> {
   bool? toggletwo;
   bool? togglethree;
   bool? togglefourth;
-  @override
-  @override
+  
   @override
   void initState() {
     super.initState();
@@ -94,9 +93,6 @@ class _PatientListPageState extends State<PatientListPage> {
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Expanded(
-          // height: size.height,
-          // width: size.width,
-          // decoration: BoxDecoration(color: Colors.white24),
           child: Padding(
             padding: const EdgeInsets.all(15.0),
             child: Column(
@@ -188,7 +184,7 @@ class _PatientListPageState extends State<PatientListPage> {
                       child: Column(
                         children: [
                           Text(
-                            "Activity 3",
+                            "Activity ",
                             style: TextStyle(fontSize: 14),
                           ),
                           Switch(

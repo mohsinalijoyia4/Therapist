@@ -37,7 +37,7 @@ dependencies:
   font_awesome_flutter: ^10.4.0
   firebase_core: ^2.13.1
   firebase_auth: ^4.6.2
-  cloud_firestore: ^4.8.0
+  cloud_firestore:
   firebase_storage: ^11.2.2
   fluttertoast: ^8.2.2
   flutter_plugin_android_lifecycle: ^2.0.11
@@ -46,6 +46,7 @@ dependencies:
   flip_card: ^0.7.0
   confetti: ^0.7.0
   lottie: ^1.1.0
+  shared_preferences:
 dev_dependencies:
   flutter_test:
     sdk: flutter
