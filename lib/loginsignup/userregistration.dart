@@ -213,11 +213,7 @@ class _UserRegistrationState extends State<UserRegistration> {
                           if (value!.isEmpty) {
                             return 'Email is required';
                           }
-                          if (!RegExp(
-                                  r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$')
-                              .hasMatch(value)) {
-                            return 'Invalid email address';
-                          }
+                          
                           return null;
                         },
                       ),
