@@ -1,6 +1,6 @@
-import 'package:docapp/allexercises.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class PatientListPage extends StatefulWidget {
   const PatientListPage({Key? key});
@@ -11,12 +11,8 @@ class PatientListPage extends StatefulWidget {
 
 class _PatientListPageState extends State<PatientListPage> {
   List<Map<String, dynamic>> patientList = [];
-  DetailsScreen detailobj = DetailsScreen();
-  bool? toggleone;
-  bool? toggletwo;
-  bool? togglethree;
-  bool? togglefourth;
-  
+  late double progress;
+
   @override
   void initState() {
     super.initState();
@@ -32,94 +28,70 @@ class _PatientListPageState extends State<PatientListPage> {
 
     for (var doc in snapshot.docs) {
       Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
+      userData['id'] = doc.id;
       patients.add(userData);
     }
 
     setState(() {
       patientList = patients;
-      toggleValues = List.generate(
-        patientList.length,
-        (index) => [false, false, false, false],
-      );
-    });
-  }
-
-  void setToggleValue(int patientIndex, int toggleIndex, bool newValue) async {
-    setState(() {
-      toggleValues[patientIndex][toggleIndex] = newValue;
     });
 
-    String patientId = patientList[patientIndex]['id'] as String;
-    String fieldToUpdate;
-    switch (toggleIndex) {
-      case 0:
-        fieldToUpdate = 'toggleOne';
-        break;
-      case 1:
-        fieldToUpdate = 'toggleTwo';
-        break;
-      case 2:
-        fieldToUpdate = 'toggleThree';
-        break;
-      case 3:
-        fieldToUpdate = 'toggleFourth';
-        break;
-      default:
-        return;
-    }
-
-    try {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(patientId)
-          .update({fieldToUpdate: newValue});
-    } catch (error) {
-      // Handle the error
+    // Print initial values of all attributes
+    for (var patient in patientList) {
+      print('Patient: ${patient['name']}');
+      print('Age: ${patient['age']}');
+      print('Contact: ${patient['phone']}');
+      print('Email: ${patient['email']}');
+      print('Toggle One: ${patient['toggleOne']}');
+      print('Toggle Two: ${patient['toggleTwo']}');
+      print('Toggle Three: ${patient['toggleThree']}');
+      print('Toggle Fourth: ${patient['toggleFourth']}');
+      print('------lkfga');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.white24,
       appBar: AppBar(
         backgroundColor: Colors.white24,
-        title: Text(
+        title: const Text(
           "Patient List",
           style: TextStyle(fontSize: 18, color: Colors.white),
         ),
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              children: [
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: patientList.length,
-                  itemBuilder: (context, index) {
-                    return _buildPatientTile(patientList[index], index);
-                  },
-                ),
-              ],
-            ),
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            children: [
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: patientList.length,
+                itemBuilder: (context, index) {
+                  return _buildPatientTile(patientList[index], index);
+                },
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  List<List<bool>> toggleValues = [];
   Widget _buildPatientTile(Map<String, dynamic> patientData, int index) {
     String? age = patientData['age'] as String?;
     String? contact = patientData['contact'] as String?;
     String? email = patientData['email'] as String?;
-
-    List<bool> patientToggleValues = toggleValues[index];
+    int trueCount = 0;
+    if (patientData['toggleOne'] == true) trueCount++;
+    if (patientData['toggleTwo'] == true) trueCount++;
+    if (patientData['toggleThree'] == true) trueCount++;
+    if (patientData['toggleFourth'] == true) trueCount++;
+    progress = trueCount / 4;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -129,7 +101,23 @@ class _PatientListPageState extends State<PatientListPage> {
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: CircularPercentIndicator(
+                radius: 50,
+                lineWidth: 20,
+                percent: progress,
+                progressColor: Colors.deepPurple,
+                circularStrokeCap: CircularStrokeCap.round,
+                backgroundColor: Colors.deepPurple.shade100,
+                center: Text(
+                  '${progress * 100}',
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
+            ),
             ExpansionTile(
               title: Text('Patient ${index + 1}'),
               children: [
@@ -154,9 +142,16 @@ class _PatientListPageState extends State<PatientListPage> {
                             style: TextStyle(fontSize: 14),
                           ),
                           Switch(
-                            value: patientToggleValues[0],
+                            value: patientData['toggleOne'] ?? false,
                             onChanged: (newValue) {
-                              setToggleValue(index, 0, newValue);
+                              setState(() {
+                                patientData['toggleOne'] = newValue;
+                              });
+                              _updateToggleValue(
+                                patientData['id'] as String,
+                                'toggleOne',
+                                newValue,
+                              );
                             },
                           ),
                         ],
@@ -171,9 +166,16 @@ class _PatientListPageState extends State<PatientListPage> {
                             style: TextStyle(fontSize: 14),
                           ),
                           Switch(
-                            value: patientToggleValues[1],
+                            value: patientData['toggleTwo'] ?? false,
                             onChanged: (newValue) {
-                              setToggleValue(index, 1, newValue);
+                              setState(() {
+                                patientData['toggleTwo'] = newValue;
+                              });
+                              _updateToggleValue(
+                                patientData['id'] as String,
+                                'toggleTwo',
+                                newValue,
+                              );
                             },
                           ),
                         ],
@@ -184,13 +186,20 @@ class _PatientListPageState extends State<PatientListPage> {
                       child: Column(
                         children: [
                           Text(
-                            "Activity ",
+                            "Activity 3",
                             style: TextStyle(fontSize: 14),
                           ),
                           Switch(
-                            value: patientToggleValues[2],
+                            value: patientData['toggleThree'] ?? false,
                             onChanged: (newValue) {
-                              setToggleValue(index, 2, newValue);
+                              setState(() {
+                                patientData['toggleThree'] = newValue;
+                              });
+                              _updateToggleValue(
+                                patientData['id'] as String,
+                                'toggleThree',
+                                newValue,
+                              );
                             },
                           ),
                         ],
@@ -205,9 +214,17 @@ class _PatientListPageState extends State<PatientListPage> {
                             style: TextStyle(fontSize: 14),
                           ),
                           Switch(
-                            value: patientToggleValues[3],
+                            value: patientData['toggleFourth'] ?? false,
                             onChanged: (newValue) {
-                              setToggleValue(index, 3, newValue);
+                              setState(() {
+                                patientData['toggleFourth'] = newValue;
+                              });
+
+                              _updateToggleValue(
+                                patientData['id'] as String,
+                                'toggleFourth',
+                                newValue,
+                              );
                             },
                           ),
                         ],
@@ -223,8 +240,19 @@ class _PatientListPageState extends State<PatientListPage> {
     );
   }
 
-  bool patientToggleOne = false;
-  bool patientToggleTwo = false;
-  bool patientToggleThree = false;
-  bool patientToggleFour = false;
+  Future<void> _updateToggleValue(
+    String patientId,
+    String fieldToUpdate,
+    bool newValue,
+  ) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(patientId)
+          .update({fieldToUpdate: newValue});
+      print('updateddd ');
+    } catch (error) {
+      print('Error updating toggle value: $error');
+    }
+  }
 }

@@ -1,12 +1,80 @@
-import 'package:docapp/games/isDone/activity.dart';
-import 'package:docapp/games/isDone/activityfour.dart';
-import 'package:docapp/games/isDone/activitythree.dart';
-import 'package:docapp/games/isDone/activitytwo.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:docapp/game.dart';
+import 'package:docapp/games/minesweerpr/main_screen.dart';
+import 'package:docapp/games/rock_paper_scissors/main_screen.dart';
+import 'package:docapp/games/wordly/screens/game_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'loginsignup/constants.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
-class DetailsScreen extends StatelessWidget {
+class DetailsScreen extends StatefulWidget {
   const DetailsScreen({super.key});
+
+  @override
+  State<DetailsScreen> createState() => _DetailsScreenState();
+}
+
+class _DetailsScreenState extends State<DetailsScreen> {
+  double progress = 0.0;
+  List<Map<String, dynamic>> patientList = [];
+  DetailsScreen detailobj = DetailsScreen();
+  bool toggleone = true;
+  bool toggletwo = true;
+  bool togglethree = true;
+  bool togglefourth = true;
+  List<List<bool>> toggleValues = [];
+
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        DocumentSnapshot snapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+        if (snapshot.exists) {
+          Map<String, dynamic> userData =
+              snapshot.data() as Map<String, dynamic>;
+          setState(() {
+            toggleone = userData['toggleOne'];
+            toggletwo = userData['toggleTwo'];
+            togglethree = userData['toggleThree'];
+            togglefourth = userData['toggleFourth'];
+
+            int trueCount = 0;
+            if (toggleone == true) trueCount++;
+            if (toggletwo == true) trueCount++;
+            if (togglethree == true) trueCount++;
+            if (togglefourth == true) trueCount++;
+
+            progress = trueCount * 0.25;
+          });
+          print('User: ${user.uid}');
+          print('Name: ${userData['name']}');
+          print('Age: ${userData['age']}');
+          print('Contact: ${userData['phone']}');
+          print('Email: ${userData['email']}');
+          print('Toggle One: ${userData['toggleOne']}');
+          print('Toggle Two: ${userData['toggleTwo']}');
+          print('Toggle Three: ${userData['toggleThree']}');
+          print('Toggle Fourth: ${userData['toggleFourth']}');
+        } else {
+          print('User data not found.');
+        }
+      } else {
+        print('User not logged in.');
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,17 +131,34 @@ class DetailsScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    SizedBox(
-                      width: size.width * .5, // it just take the 50% width
-                      child: const SearchBar(),
+                    // SizedBox(
+                    //   width: size.width * .5, // it just take the 50% width
+                    //   child: const SearchBar(),
+                    // ),
+                    Row(
+                      children: [
+                        CircularPercentIndicator(
+                          radius: 50,
+                          lineWidth: 20,
+                          percent: progress,
+                          progressColor: Colors.deepPurple,
+                          circularStrokeCap: CircularStrokeCap.round,
+                          backgroundColor: Colors.deepPurple.shade100,
+                          center: Text(
+                            '${progress * 100}',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 20),
+
                     Wrap(
                       spacing: 20,
                       runSpacing: 20,
                       children: <Widget>[
                         SeassionCard(
-                          isDone: true,
+                          isDone: toggleone,
                           text: "Visual Memory ",
                           seassionNum: 1,
                           // isDone: true,
@@ -81,43 +166,43 @@ class DetailsScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => ActivityOneScreen()),
+                                  builder: (context) => MainScreen()),
                             );
                           },
                         ), //MainScreen
                         SeassionCard(
-                          isDone: true,
+                          isDone: toggletwo,
                           text: "Word Formation ",
                           seassionNum: 2,
                           press: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const ActivityTwoScreen()),
+                                  builder: (context) => const GameScreen()),
                             );
                           },
                         ),
                         SeassionCard(
-                          isDone: true,
+                          isDone: togglethree,
                           text: "Matching Game ",
                           seassionNum: 3,
                           press: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const ActivityThreeScreen()),
+                                  builder: (context) => const MatchingGame()),
                             );
                           },
                         ),
                         SeassionCard(
-                          isDone: true,
+                          isDone: togglefourth,
                           text: "Visual Memory ",
                           seassionNum: 4,
                           press: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const ActivityFourScreen()),
+                                  builder: (context) => const MainScreenRock()),
                             );
                           },
                         ),
@@ -158,7 +243,8 @@ class DetailsScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                    )
+                    ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),

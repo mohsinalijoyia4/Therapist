@@ -17,6 +17,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     game.generateMap();
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +30,9 @@ class _MainScreenState extends State<MainScreen> {
         title: Text("MineSweeper"),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              
+            },
             icon: Icon(Icons.settings),
           ),
         ],
