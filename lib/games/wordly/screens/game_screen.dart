@@ -14,7 +14,6 @@ class _GameScreenState extends State<GameScreen> {
   late String word;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     WorldeGame.initGame();
   }

@@ -18,8 +18,8 @@ class _UserScreenOneState extends State<UserScreenOne>
   int _currentIndex = 0;
   late AnimationController _animationController;
   final List<Widget> _pages = [
-    UserHomePage(),
     DetailsScreen(),
+    UserHomePage(),
     UserSetting(),
   ];
 
@@ -60,8 +60,8 @@ class _UserScreenOneState extends State<UserScreenOne>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  buildBottomNavigationBarItem(0, Icons.home, 'Home'),
-                  buildBottomNavigationBarItem(1, Icons.work, 'All Exercises'),
+                  buildBottomNavigationBarItem(1, Icons.home, 'Home'),
+                  buildBottomNavigationBarItem(0, Icons.work, 'All Exercises'),
                   buildBottomNavigationBarItem(2, Icons.settings, 'Settings'),
                 ],
               ),

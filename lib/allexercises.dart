@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:docapp/game.dart';
-import 'package:docapp/games/minesweerpr/main_screen.dart';
+import 'package:docapp/games/colormatch/colormatching.dart';
+import 'package:docapp/games/mathactivity/home_page.dart';
+import 'package:docapp/games/nwe/Board.dart';
 import 'package:docapp/games/rock_paper_scissors/main_screen.dart';
 import 'package:docapp/games/wordly/screens/game_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,13 +20,15 @@ class DetailsScreen extends StatefulWidget {
 class _DetailsScreenState extends State<DetailsScreen> {
   double progress = 0.0;
   List<Map<String, dynamic>> patientList = [];
-  DetailsScreen detailobj = DetailsScreen();
   bool toggleone = true;
   bool toggletwo = true;
   bool togglethree = true;
   bool togglefourth = true;
+  bool togglefivth = true;
+  bool togglesixth = true;
   List<List<bool>> toggleValues = [];
 
+  @override
   void initState() {
     super.initState();
     _fetchUserData();
@@ -47,14 +51,18 @@ class _DetailsScreenState extends State<DetailsScreen> {
             toggletwo = userData['toggleTwo'];
             togglethree = userData['toggleThree'];
             togglefourth = userData['toggleFourth'];
+            togglefivth = userData['toggleFivth'];
+            togglesixth = userData['togglesixth'];
 
             int trueCount = 0;
             if (toggleone == true) trueCount++;
             if (toggletwo == true) trueCount++;
             if (togglethree == true) trueCount++;
             if (togglefourth == true) trueCount++;
-
-            progress = trueCount * 0.25;
+            if (togglefivth == true) trueCount++;
+            if (togglesixth == true) trueCount++;
+            progress = trueCount * 0.167;
+            if (progress >= 1) progress = 1;
           });
           print('User: ${user.uid}');
           print('Name: ${userData['name']}');
@@ -65,6 +73,9 @@ class _DetailsScreenState extends State<DetailsScreen> {
           print('Toggle Two: ${userData['toggleTwo']}');
           print('Toggle Three: ${userData['toggleThree']}');
           print('Toggle Fourth: ${userData['toggleFourth']}');
+          print('Toggle Fivth: ${userData['toggleFivth']}');
+          print('Toggle sixth: ${userData['togglesixth']}');
+          print(progress);
         } else {
           print('User data not found.');
         }
@@ -145,7 +156,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                           circularStrokeCap: CircularStrokeCap.round,
                           backgroundColor: Colors.deepPurple.shade100,
                           center: Text(
-                            '${progress * 100}',
+                            '${(progress * 100).toStringAsFixed(2)}',
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
@@ -166,7 +177,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => MainScreen()),
+                                  builder: (context) => Board()), //MainScreen
                             );
                           },
                         ), //MainScreen
@@ -196,13 +207,37 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         ),
                         SeassionCard(
                           isDone: togglefourth,
-                          text: "Visual Memory ",
+                          text: "Rock Scissors ",
                           seassionNum: 4,
                           press: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => const MainScreenRock()),
+                            );
+                          },
+                        ),
+                        SeassionCard(
+                          isDone: togglefivth,
+                          text: "Math Memory",
+                          seassionNum: 4,
+                          press: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HomePage()),
+                            );
+                          },
+                        ),
+                        SeassionCard(
+                          isDone: togglesixth,
+                          text: "Color Matching ",
+                          seassionNum: 4,
+                          press: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MyHomePage()),
                             );
                           },
                         ),

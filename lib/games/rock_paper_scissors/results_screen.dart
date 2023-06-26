@@ -1,8 +1,11 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:docapp/games/rock_paper_scissors/button.dart';
 import 'package:docapp/games/rock_paper_scissors/game.dart';
 import 'package:docapp/games/rock_paper_scissors/main_screen.dart';
+import 'package:docapp/userscreen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class GameScreenRocks extends StatefulWidget {
@@ -14,10 +17,43 @@ class GameScreenRocks extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreenRocks> {
   /* Generating random choice */
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Game.gameScore = 0;
+  }
+
   String? randomChoice() {
     Random random = new Random();
     int robotChoiceIndex = random.nextInt(3);
     return Game.choices[robotChoiceIndex];
+  }
+
+  void showWinDialog() {
+    if (Game.gameScore >= 1) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Congratulations!"),
+            content: Text("You won the game!"),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Dismiss the dialog
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => UserScreenOne()),
+                  );
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -51,9 +87,29 @@ class _GameScreenState extends State<GameScreenRocks> {
     }
     if (GameChoice.gameRules[widget.gameChoice.type]![robotChoice] ==
         "You Win") {
-      setState(() {
-        Game.gameScore++;
-      });
+      Game.gameScore++;
+      if (Game.gameScore >= 1) {
+        Game.gameScore = 0;
+        User? user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          String currentUserId = user.uid;
+          FirebaseFirestore.instance
+              .collection('users')
+              .doc(currentUserId)
+              .update({'toggleFourth': true}).then((_) {
+            print('Field updated successfully.');
+          }).catchError((error) {
+            print('Failed to update field: $error');
+          });
+        } else {
+          print('User is not authenticated.');
+        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => UserScreenOne()),
+        );
+      }
+      // showWinDialog;
     }
     double btnWidth = MediaQuery.of(context).size.width / 2 - 40;
     return Scaffold(

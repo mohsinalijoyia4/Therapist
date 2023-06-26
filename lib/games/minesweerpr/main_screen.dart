@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:docapp/games/minesweerpr/colors.dart';
 import 'package:docapp/games/minesweerpr/game_helper.dart';
 import 'package:flutter/material.dart';
@@ -10,14 +12,30 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  String _currentTime = '';
+  Timer? _timer;
   MineSweeperGame game = MineSweeperGame();
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+      setState(() {
+        _currentTime = DateTime.now().toString().split(' ')[1].substring(0, 5);
+      });
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     game.generateMap();
+    _startTimer();
   }
-  
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +48,7 @@ class _MainScreenState extends State<MainScreen> {
         title: Text("MineSweeper"),
         actions: [
           IconButton(
-            onPressed: () {
-              
-            },
+            onPressed: () {},
             icon: Icon(Icons.settings),
           ),
         ],
@@ -62,7 +78,7 @@ class _MainScreenState extends State<MainScreen> {
                         size: 34.0,
                       ),
                       Text(
-                        "12:32",
+                        _currentTime ?? '',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 32.0,
@@ -136,13 +152,14 @@ class _MainScreenState extends State<MainScreen> {
                 }),
           ),
           RawMaterialButton(
+            fillColor: Colors.blue,
+            child: Text("repeat"),
             onPressed: () {
               setState(() {
+                game.gameMap.clear();
                 game.generateMap();
               });
             },
-            fillColor: Colors.blue,
-            child: Text("repeat"),
           ),
         ],
       ),

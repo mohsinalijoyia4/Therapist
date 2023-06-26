@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:docapp/games/wordly/screens/utils/game_provider.dart';
 import 'package:docapp/games/wordly/screens/widgets/game_board.dart';
+import 'package:docapp/userscreen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
@@ -16,6 +19,12 @@ class _GameKeyboardState extends State<GameKeyboard> {
   List row1 = "QWERTYUIOP".split("");
   List row2 = "ASDFGHJKL".split("");
   List row3 = ["DEL", "Z", "X", "C", "V", "B", "N", "M", "SUBMIT"];
+
+  @override
+  void initState() {
+    super.initState();
+    WorldeGame.game_message = '';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,10 +138,32 @@ class _GameKeyboardState extends State<GameKeyboard> {
                     if (widget.game.checkWordExist(guess.toLowerCase())) {
                       if (guess == WorldeGame.game_guess) {
                         setState(() {
-                          WorldeGame.game_message = "Congratulations🎉";
+                          WorldeGame.game_message =
+                              "Congratulations🎉 You won then Game and your activity is completed ";
+                          // Logi for won players
                           widget.game.wordleBoard[widget.game.rowId]
                               .forEach((element) {
                             element.code = 1;
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => UserScreenOne()),
+                            );
+                            User? user = FirebaseAuth.instance.currentUser;
+                            if (user != null) {
+                              String currentUserId = user.uid;
+                              FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(currentUserId)
+                                  .update({'toggleTwo': true}).then((_) {
+                                print('Field updated successfully.');
+                              }).catchError((error) {
+                                print('Failed to update field: $error');
+                              });
+                            } else {
+                              print('User is not authenticated.');
+                            }
                           });
                         });
                       } else {

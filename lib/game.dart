@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:docapp/constants.dart';
+import 'package:docapp/userscreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -40,7 +42,9 @@ class _MatchingGameState extends State<MatchingGame> {
     items2 = List<ItemModel>.from(items);
     items.shuffle();
     items2.shuffle();
+  }
 
+  void update() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
       DocumentReference userDoc =
@@ -50,6 +54,10 @@ class _MatchingGameState extends State<MatchingGame> {
       if (score == 50) {
         await userDoc.update({'toggleThree': true});
         print('toggleThree updated in Firestore');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => UserScreenOne()),
+        );
       }
     }
   }
@@ -58,7 +66,7 @@ class _MatchingGameState extends State<MatchingGame> {
   Widget build(BuildContext context) {
     if (items.isEmpty) gameOver = true;
     return Scaffold(
-      backgroundColor: Colors.amberAccent,
+      backgroundColor: kBackgroundColor,
       appBar: AppBar(
         centerTitle: true,
         title: const Text('Matching Game'),
@@ -70,7 +78,14 @@ class _MatchingGameState extends State<MatchingGame> {
             Text.rich(
               TextSpan(
                 children: [
-                  const TextSpan(text: "Score: "),
+                  const TextSpan(
+                    text: "Score: ",
+                    style: const TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 30.0,
+                    ),
+                  ),
                   TextSpan(
                     text: "$score",
                     style: const TextStyle(
@@ -174,6 +189,20 @@ class _MatchingGameState extends State<MatchingGame> {
             if (gameOver)
               Center(
                 child: ElevatedButton(
+                  child: Text("Make it Done"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.pink,
+                    textStyle: const TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () {
+                    // initGame();
+                    update();
+                  },
+                ),
+              ),
+            if (gameOver)
+              Center(
+                child: ElevatedButton(
                   child: Text("New Game"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.pink,
@@ -181,7 +210,7 @@ class _MatchingGameState extends State<MatchingGame> {
                   ),
                   onPressed: () {
                     initGame();
-                    setState(() {});
+                    // update();
                   },
                 ),
               ),

@@ -46,6 +46,9 @@ class _PatientListPageState extends State<PatientListPage> {
       print('Toggle Two: ${patient['toggleTwo']}');
       print('Toggle Three: ${patient['toggleThree']}');
       print('Toggle Fourth: ${patient['toggleFourth']}');
+      print('Toggle Five: ${patient['toggleFivth']}');
+      print('Toggle sixth: ${patient['togglesixth']}');
+
       print('------lkfga');
     }
   }
@@ -84,14 +87,17 @@ class _PatientListPageState extends State<PatientListPage> {
 
   Widget _buildPatientTile(Map<String, dynamic> patientData, int index) {
     String? age = patientData['age'] as String?;
-    String? contact = patientData['contact'] as String?;
+    String? contact = patientData['phone'] as String?;
     String? email = patientData['email'] as String?;
     int trueCount = 0;
     if (patientData['toggleOne'] == true) trueCount++;
     if (patientData['toggleTwo'] == true) trueCount++;
     if (patientData['toggleThree'] == true) trueCount++;
     if (patientData['toggleFourth'] == true) trueCount++;
-    progress = trueCount / 4;
+    if (patientData['toggleFivth'] == true) trueCount++;
+    if (patientData['togglesixth'] == true) trueCount++;
+
+    progress = trueCount / 6;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -113,8 +119,8 @@ class _PatientListPageState extends State<PatientListPage> {
                 circularStrokeCap: CircularStrokeCap.round,
                 backgroundColor: Colors.deepPurple.shade100,
                 center: Text(
-                  '${progress * 100}',
-                  style: TextStyle(color: Colors.black),
+                  (progress * 100).toStringAsFixed(2),
+                  style: const TextStyle(color: Colors.black),
                 ),
               ),
             ),
@@ -130,8 +136,8 @@ class _PatientListPageState extends State<PatientListPage> {
                 ListTile(
                   title: Text('Email: ${email ?? ''}'),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -223,6 +229,56 @@ class _PatientListPageState extends State<PatientListPage> {
                               _updateToggleValue(
                                 patientData['id'] as String,
                                 'toggleFourth',
+                                newValue,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            "Activity 5",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          Switch(
+                            value: patientData['toggleFivth'] ?? false,
+                            onChanged: (newValue) {
+                              setState(() {
+                                patientData['toggleFivth'] = newValue;
+                              });
+
+                              _updateToggleValue(
+                                patientData['id'] as String,
+                                'toggleFivth',
+                                newValue,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            "Activity 6",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          Switch(
+                            value: patientData['togglesixth'] ?? false,
+                            onChanged: (newValue) {
+                              setState(() {
+                                patientData['togglesixth'] = newValue;
+                              });
+
+                              _updateToggleValue(
+                                patientData['id'] as String,
+                                'togglesixth',
                                 newValue,
                               );
                             },
