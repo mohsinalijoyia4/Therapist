@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:docapp/game.dart';
+import 'package:docapp/games/game.dart';
 import 'package:docapp/games/colormatch/colormatching.dart';
 import 'package:docapp/games/mathactivity/home_page.dart';
 import 'package:docapp/games/nwe/Board.dart';
@@ -75,6 +75,8 @@ class _DetailsScreenState extends State<DetailsScreen> {
           print('Toggle Fourth: ${userData['toggleFourth']}');
           print('Toggle Fivth: ${userData['toggleFivth']}');
           print('Toggle sixth: ${userData['togglesixth']}');
+          print('Token : ${userData['token']}');
+
           print(progress);
         } else {
           print('User data not found.');
@@ -156,7 +158,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                           circularStrokeCap: CircularStrokeCap.round,
                           backgroundColor: Colors.deepPurple.shade100,
                           center: Text(
-                            '${(progress * 100).toStringAsFixed(2)}',
+                            (progress * 100).toStringAsFixed(2),
                             style: TextStyle(color: Colors.white),
                           ),
                         ),

@@ -49,6 +49,8 @@ dependencies:
   shared_preferences:
   wave_linear_progress_indicator: ^0.1.0
   percent_indicator: ^4.2.3
+  flutter_local_notifications: ^14.1.1
+  firebase_messaging: ^14.6.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

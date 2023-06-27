@@ -4,6 +4,7 @@ import 'package:docapp/loginsignup/textbutton.dart';
 import 'package:docapp/loginsignup/userregistration.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -88,6 +89,13 @@ class _UserSignInState extends State<UserSignIn> {
         email: email,
         password: password,
       );
+      String? fcmToken = await FirebaseMessaging.instance.getToken();
+
+      // Store the FCM token in the Firestore document
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .update({'token': fcmToken});
 
       // User is successfully authenticated
       // Check if the user exists in the 'users' collection

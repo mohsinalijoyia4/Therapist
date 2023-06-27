@@ -78,7 +78,7 @@ class _MainScreenState extends State<MainScreen> {
                         size: 34.0,
                       ),
                       Text(
-                        _currentTime ?? '',
+                        _currentTime ,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 32.0,

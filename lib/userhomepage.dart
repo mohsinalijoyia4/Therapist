@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:docapp/uerstherapistprofile.dart';
 import 'package:docapp/userpinprofile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -14,6 +16,11 @@ class UserHomePage extends StatefulWidget {
 
 class _UserHomePageState extends State<UserHomePage> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  int count = 0;
+  String _profileImageUrl = '';
+  String _name = '';
+  List<Map<String, dynamic>> _therapists = [];
+
   void _showPinDialog(BuildContext context) async {
     showDialog(
       context: context,
@@ -156,33 +163,6 @@ class _UserHomePageState extends State<UserHomePage> {
     );
   }
 
-  String _profileImageUrl = '';
-  String _name = '';
-  String _email = '';
-  List<Map<String, dynamic>> _therapists = [];
-  String _phone = '';
-
-  Future<void> _fetchUserData() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      String userId = user.uid;
-      DocumentSnapshot snapshot = await FirebaseFirestore.instance
-          .collection('therapists')
-          .doc(userId)
-          .get();
-
-      if (snapshot.exists) {
-        setState(() {
-          _name = snapshot.get('name');
-          _email = snapshot.get('email');
-          _phone = snapshot.get('phone');
-        });
-      } else {
-        print("No user exists");
-      }
-    }
-  }
-
   Future<void> _fetchTherapists() async {
     QuerySnapshot snapshot =
         await FirebaseFirestore.instance.collection('therapists').get();
@@ -190,13 +170,24 @@ class _UserHomePageState extends State<UserHomePage> {
     List<Map<String, dynamic>> therapists = [];
 
     for (var doc in snapshot.docs) {
+      count += 1;
       Map<String, dynamic> therapistData = doc.data() as Map<String, dynamic>;
+      therapistData['id'] = doc.id;
       therapists.add(therapistData);
     }
-
     setState(() {
       _therapists = therapists;
     });
+// Print the therapists
+    for (var therapist in _therapists) {
+      print('Therapist Name: ${therapist['name']}');
+      print('Specialization: ${therapist['specialization']}');
+      print('Profile Image: ${therapist['profileImage']}');
+      print('email: ${therapist['email']}');
+      print('Phone Number: ${therapist['phone']}');
+      print("count   :   $count");
+      print('-----------------------------------');
+    }
   }
 
   Future<void> _loadProfileImage() async {
@@ -228,7 +219,6 @@ class _UserHomePageState extends State<UserHomePage> {
   void initState() {
     super.initState();
     _fetchTherapists();
-    _fetchUserData();
     _loadProfileImage();
   }
 
@@ -309,7 +299,7 @@ class _UserHomePageState extends State<UserHomePage> {
                     height: 300.0,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: 1,
+                      itemCount: count,
                       itemBuilder: (BuildContext context, int index) {
                         return _buildTherapistCard(index);
                       },
@@ -324,27 +314,62 @@ class _UserHomePageState extends State<UserHomePage> {
     );
   }
 
+  void _viewProfile(int index) {
+    if (index >= _therapists.length) {
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            TherapistForUser(therapistData: _therapists[index]),
+      ),
+    );
+  }
+
   Widget _buildTherapistCard(int index) {
     if (index >= _therapists.length) {
       return Container(); // Return an empty container if the index is out of bounds
     }
+    _profileImageUrl = _therapists[index]['profileImage'];
 
-    String name =
-        _therapists[index]['name'] ?? ''; // Assign an empty string if null
     String specialization = _therapists[index]['specialization'] ??
         ''; // Assign an empty string if null
-
-    return Container(
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-      width: 200.0,
-      child: Card(
+    _name = _therapists[index]['name'] ?? '';
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Container(
+        width: 200,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Theme.of(context).primaryColorLight,
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Add your desired avatar or image widget here
+            CachedNetworkImage(
+              imageUrl: _profileImageUrl,
+              imageBuilder: (context, imageProvider) => CircleAvatar(
+                radius: 40.0,
+                backgroundImage: imageProvider,
+              ),
+              placeholder: (context, url) => CircleAvatar(
+                radius: 40.0,
+                backgroundColor: Colors.grey,
+              ),
+              errorWidget: (context, url, error) => CircleAvatar(
+                radius: 40.0,
+                backgroundImage: AssetImage('assets/images/user.png'),
+              ),
+            ),
             const SizedBox(height: 10.0),
             Text(
-              name,
+              _name,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -358,10 +383,11 @@ class _UserHomePageState extends State<UserHomePage> {
                 color: Colors.grey,
               ),
             ),
-            const SizedBox(height: 10.0),
+            SizedBox(height: 10.0),
             ElevatedButton(
               onPressed: () {
                 // Handle therapist card press
+                _viewProfile(index);
               },
               // color: Colors.blue,
               child: const Text(

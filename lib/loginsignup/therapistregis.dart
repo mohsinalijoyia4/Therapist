@@ -24,9 +24,10 @@ class _TherapistRegistrationPageState extends State<TherapistRegistrationPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
+  final _specializationConroller = TextEditingController();
   final _phoneNumberController = TextEditingController();
   File? _image;
-  
+
   @override
   void initState() {
     super.initState();
@@ -35,9 +36,8 @@ class _TherapistRegistrationPageState extends State<TherapistRegistrationPage> {
     _nameController.addListener(() {});
     _phoneNumberController.addListener(() {});
     _confirmPasswordController.addListener(() {});
-    
+    _specializationConroller.addListener(() {});
   }
-
 
   Future<void> _selectProfilePicture() async {
     final ImagePicker _picker = ImagePicker();
@@ -90,6 +90,7 @@ class _TherapistRegistrationPageState extends State<TherapistRegistrationPage> {
             'password': _passwordController.text.trim(),
             'name': _nameController.text.trim(),
             'phone': _phoneNumberController.text.trim(),
+            'specialization': _specializationConroller.text.trim(),
           })
           .then((value) {})
           .onError((error, stackTrace) {
@@ -229,7 +230,7 @@ class _TherapistRegistrationPageState extends State<TherapistRegistrationPage> {
                       return null;
                     },
                   ),
-                  SizedBox(height: size.height * 0.04),
+                  SizedBox(height: size.height * 0.03),
                   TextFormField(
                     controller: _phoneNumberController,
                     style: TextStyle(color: Colors.white),
@@ -259,7 +260,7 @@ class _TherapistRegistrationPageState extends State<TherapistRegistrationPage> {
                       return null;
                     },
                   ),
-                  SizedBox(height: size.height * 0.04),
+                  SizedBox(height: size.height * 0.03),
                   TextFormField(
                     style: TextStyle(color: Colors.white),
                     controller: _nameController,
@@ -286,6 +287,37 @@ class _TherapistRegistrationPageState extends State<TherapistRegistrationPage> {
                         return 'Name is required';
                       }
                       // Add any additional name validation logic if needed
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: size.height * 0.03),
+                  TextFormField(
+                    style: TextStyle(color: Colors.white),
+                    controller: _specializationConroller,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: kTextFieldFill,
+                      labelText: 'Specialization',
+                      labelStyle: TextStyle(color: Colors.white),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.red),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Specialization is required';
+                      }
+                      // Add confirm password validation logic if needed
                       return null;
                     },
                   ),
