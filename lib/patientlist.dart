@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class PatientListPage extends StatefulWidget {
   const PatientListPage({Key? key});
@@ -313,103 +311,34 @@ class _PatientListPageState extends State<PatientListPage> {
       print('updateddd ');
 
       // Send notification to the patient
-      _sendNotification(patientId, fieldToUpdate);
+      // _sendNotification(patientId, fieldToUpdate);
     } catch (error) {
       print('Error updating toggle value: $error');
     }
   }
 
-  Future<void> _sendNotification(String patientId, String fieldToUpdate) async {
-    try {
-      // Get the user token from Firestore
-      DocumentSnapshot snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(patientId)
-          .get();
-      Map<String, dynamic>? userData = snapshot.data() as Map<String, dynamic>?;
 
-      String? userToken = userData?['token'] as String?;
 
-      // Prepare the notification message
-      String activityName;
-      switch (fieldToUpdate) {
-        case 'toggleOne':
-          activityName = 'Activity 1';
-          break;
-        case 'toggleTwo':
-          activityName = 'Activity 2';
-          break;
-        case 'toggleThree':
-          activityName = 'Activity 3';
-          break;
-        case 'toggleFourth':
-          activityName = 'Activity 4';
-          break;
-        case 'toggleFivth':
-          activityName = 'Activity 5';
-          break;
-        case 'togglesixth':
-          activityName = 'Activity 6';
-          break;
-        default:
-          activityName = '';
-          break;
-      }
-
-      String notificationTitle = 'Activity Update';
-      String notificationBody = 'Your therapist has updated $activityName';
-
-      // Send the notification using Firebase Messaging
-      // Prepare the request body
-      var body = {
-        'notification': {
-          'title': notificationTitle,
-          'body': notificationBody,
-        },
-        'to': userToken,
-      };
-
-      // Send the notification using FCM REST API
-      final response = await http.post(
-        Uri.parse('https://fcm.googleapis.com/fcm/send'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization':
-              'BLBFbrWLZD8ClwUqr-uXP8SNsaJvgsknZ6_jlQGyEXluIBE0uBLD9mqZ2DtCOXPPWsYCrQQl0AYBTxE7Fpa9ie8',
-        },
-        body: jsonEncode(body),
-      );
-
-      if (response.statusCode == 200) {
-        print('Notification sent successfully');
-      } else {
-        print(
-            'Failed to send notification. StatusCode: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error sending notification: $error');
-    }
-  }
 }
 
-class PushNotificationMessage {
-  final String title;
-  final String body;
-  final String token;
+// class PushNotificationMessage {
+//   final String title;
+//   final String body;
+//   final String token;
 
-  PushNotificationMessage({
-    required this.title,
-    required this.body,
-    required this.token,
-  });
+//   PushNotificationMessage({
+//     required this.title,
+//     required this.body,
+//     required this.token,
+//   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'notification': {
-        'title': title,
-        'body': body,
-      },
-      'to': token,
-    };
-  }
-}
+//   Map<String, dynamic> toMap() {
+//     return {
+//       'notification': {
+//         'title': title,
+//         'body': body,
+//       },
+//       'to': token,
+//     };
+//   }
+// }

@@ -35,7 +35,12 @@ class _TherapistForUserState extends State<TherapistForUser> {
       if (userSnapshot.exists) {
         Map<String, dynamic> userData =
             userSnapshot.data() as Map<String, dynamic>;
-
+        DocumentSnapshot assignedUserSnapshot =
+            await assignedUsersCollection.doc(userId).get();
+        if (assignedUserSnapshot.exists) {
+          print("User already exists in assignedusers collection");
+          return;
+        }
         await assignedUsersCollection.doc(userId).set({
           'name': userData['name'],
           'age': userData['age'],

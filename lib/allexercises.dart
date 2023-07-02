@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:docapp/games/game.dart';
 import 'package:docapp/games/colormatch/colormatching.dart';
 import 'package:docapp/games/mathactivity/home_page.dart';
+import 'package:docapp/games/memory/ui/pages/startup_page.dart';
 import 'package:docapp/games/nwe/Board.dart';
 import 'package:docapp/games/rock_paper_scissors/main_screen.dart';
 import 'package:docapp/games/wordly/screens/game_screen.dart';
@@ -20,12 +21,14 @@ class DetailsScreen extends StatefulWidget {
 class _DetailsScreenState extends State<DetailsScreen> {
   double progress = 0.0;
   List<Map<String, dynamic>> patientList = [];
-  bool toggleone = true;
-  bool toggletwo = true;
-  bool togglethree = true;
-  bool togglefourth = true;
-  bool togglefivth = true;
-  bool togglesixth = true;
+  bool toggleone = false;
+  bool toggletwo = false;
+  bool togglethree = false;
+  bool togglefourth = false;
+  bool togglefivth = false;
+  bool togglesixth = false;
+  bool toggleseven = false;
+  bool toogleeight = false;
   List<List<bool>> toggleValues = [];
 
   @override
@@ -34,58 +37,111 @@ class _DetailsScreenState extends State<DetailsScreen> {
     _fetchUserData();
   }
 
+  String getCurrentTherapistId() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      print("User is not null");
+      return user.uid;
+    } else {
+      return '';
+    }
+  }
+
   Future<void> _fetchUserData() async {
+    String currentuseID = '';
+    currentuseID = getCurrentTherapistId();
+
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        DocumentSnapshot snapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
+      QuerySnapshot therapistsSnapshot =
+          await FirebaseFirestore.instance.collection('therapists').get();
 
-        if (snapshot.exists) {
-          Map<String, dynamic> userData =
-              snapshot.data() as Map<String, dynamic>;
-          setState(() {
-            toggleone = userData['toggleOne'];
-            toggletwo = userData['toggleTwo'];
-            togglethree = userData['toggleThree'];
-            togglefourth = userData['toggleFourth'];
-            togglefivth = userData['toggleFivth'];
-            togglesixth = userData['togglesixth'];
+      List<Map<String, dynamic>> patients = [];
 
-            int trueCount = 0;
-            if (toggleone == true) trueCount++;
-            if (toggletwo == true) trueCount++;
-            if (togglethree == true) trueCount++;
-            if (togglefourth == true) trueCount++;
-            if (togglefivth == true) trueCount++;
-            if (togglesixth == true) trueCount++;
-            progress = trueCount * 0.167;
-            if (progress >= 1) progress = 1;
-          });
-          print('User: ${user.uid}');
-          print('Name: ${userData['name']}');
-          print('Age: ${userData['age']}');
-          print('Contact: ${userData['phone']}');
-          print('Email: ${userData['email']}');
-          print('Toggle One: ${userData['toggleOne']}');
-          print('Toggle Two: ${userData['toggleTwo']}');
-          print('Toggle Three: ${userData['toggleThree']}');
-          print('Toggle Fourth: ${userData['toggleFourth']}');
-          print('Toggle Fivth: ${userData['toggleFivth']}');
-          print('Toggle sixth: ${userData['togglesixth']}');
-          print('Token : ${userData['token']}');
+      for (var therapistDoc in therapistsSnapshot.docs) {
+        QuerySnapshot assignedUsersSnapshot =
+            await therapistDoc.reference.collection('assignedusers').get();
 
-          print(progress);
-        } else {
-          print('User data not found.');
+        for (var assignedUserDoc in assignedUsersSnapshot.docs) {
+          if (assignedUserDoc.id == currentuseID) {
+            Map<String, dynamic> userData =
+                assignedUserDoc.data() as Map<String, dynamic>;
+            userData['id'] = assignedUserDoc.id;
+
+            // Initialize toggle values if not already present
+            if (!userData.containsKey('toggleOne')) {
+              userData['toggleOne'] = false;
+            }
+            if (!userData.containsKey('toggleTwo')) {
+              userData['toggleTwo'] = false;
+            }
+            if (!userData.containsKey('toggleThree')) {
+              userData['toggleThree'] = false;
+            }
+            if (!userData.containsKey('toggleFourth')) {
+              userData['toggleFourth'] = false;
+            }
+            if (!userData.containsKey('toggleFivth')) {
+              userData['toggleFivth'] = false;
+            }
+            if (!userData.containsKey('togglesixth')) {
+              userData['togglesixth'] = false;
+            }
+            if (!userData.containsKey('toggleSeventh')) {
+              userData['toggleSeventh'] = false;
+            }
+            if (!userData.containsKey('toggleEighth')) {
+              userData['toggleEighth'] = false;
+            }
+
+            patients.add(userData);
+            break; // Exit the loop once the desired assigned user document is found
+          }
         }
-      } else {
-        print('User not logged in.');
       }
-    } catch (e) {
-      print('Error fetching user data: $e');
+
+      setState(() {
+        patientList = patients;
+        if (patients.isNotEmpty) {
+          toggleone = patients[0]['toggleOne'];
+          toggletwo = patients[0]['toggleTwo'];
+          togglethree = patients[0]['toggleThree'];
+          togglefourth = patients[0]['toggleFourth'];
+          togglefivth = patients[0]['toggleFivth'];
+          togglesixth = patients[0]['togglesixth'];
+          toggleseven = patients[0]['toggleSeventh'];
+          toogleeight = patients[0]['toggleEighth'];
+        }
+        int trueCount = 0;
+        if (toggleone == true) trueCount++;
+        if (toggletwo == true) trueCount++;
+        if (togglethree == true) trueCount++;
+        if (togglefourth == true) trueCount++;
+        if (togglefivth == true) trueCount++;
+        if (togglesixth == true) trueCount++;
+        if (toggleseven == true) trueCount++;
+        if (toogleeight == true) trueCount++;
+        progress = trueCount * 0.125;
+        if (progress >= 1) progress = 1;
+        print("Patients:   $patients");
+      });
+
+      // Print values of all attributes
+
+      print('Patient: ${patients[0]['name']}');
+      print('Age: ${patients[0]['age']}');
+      print('Contact: ${patients[0]['phone']}');
+      print('Email: ${patients[0]['email']}');
+      print('Toggle One: ${patients[0]['toggleOne']}');
+      print('Toggle Two: ${patients[0]['toggleTwo']}');
+      print('Toggle Three: ${patients[0]['toggleThree']}');
+      print('Toggle Fourth: ${patients[0]['toggleFourth']}');
+      print('Toggle Five: ${patients[0]['toggleFivth']}');
+      print('Toggle sixth: ${patients[0]['togglesixth']}');
+      print('Toggle seven: ${patients[0]['toggleSeventh']}');
+      print('Toggle eight: ${patients[0]['toggleEighth']}');
+      print('------lkfga');
+    } catch (error) {
+      print('Error fetching user data: $error');
     }
   }
 
@@ -172,7 +228,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                       children: <Widget>[
                         SeassionCard(
                           isDone: toggleone,
-                          text: "Visual Memory ",
+                          text: "Puzzle  ",
                           seassionNum: 1,
                           // isDone: true,
                           press: () {
@@ -222,7 +278,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         SeassionCard(
                           isDone: togglefivth,
                           text: "Math Memory",
-                          seassionNum: 4,
+                          seassionNum: 5,
                           press: () {
                             Navigator.push(
                               context,
@@ -234,7 +290,31 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         SeassionCard(
                           isDone: togglesixth,
                           text: "Color Matching ",
-                          seassionNum: 4,
+                          seassionNum: 6,
+                          press: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MyHomePage()),
+                            );
+                          },
+                        ),
+                        SeassionCard(
+                          isDone: toggleseven,
+                          text: "Memory ",
+                          seassionNum: 7,
+                          press: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => StartUpPage()),
+                            );
+                          },
+                        ),
+                        SeassionCard(
+                          isDone: toogleeight,
+                          text: "Color Matching ",
+                          seassionNum: 8,
                           press: () {
                             Navigator.push(
                               context,

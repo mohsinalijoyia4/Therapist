@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:docapp/constants.dart';
+import 'package:docapp/patients.dart';
 import 'package:docapp/therapistprofile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:docapp/patientlist.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
@@ -166,7 +166,7 @@ class _TherapistAppHomePageState extends State<TherapistAppHomePage> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => PatientListPage()));
+                            builder: (context) => TherapistPatients()));
                   },
                   child: Container(
                     width: size.width,

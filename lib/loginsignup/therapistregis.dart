@@ -294,7 +294,7 @@ class _TherapistRegistrationPageState extends State<TherapistRegistrationPage> {
                   TextFormField(
                     style: TextStyle(color: Colors.white),
                     controller: _specializationConroller,
-                    obscureText: true,
+                    obscureText: false,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: kTextFieldFill,
