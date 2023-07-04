@@ -5,6 +5,7 @@ import 'package:docapp/games/mathactivity/home_page.dart';
 import 'package:docapp/games/memory/ui/pages/startup_page.dart';
 import 'package:docapp/games/nwe/Board.dart';
 import 'package:docapp/games/rock_paper_scissors/main_screen.dart';
+import 'package:docapp/games/tetris/homepage.dart';
 import 'package:docapp/games/wordly/screens/game_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
   String getCurrentTherapistId() {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      print("User is not null");
+      // print("User is not null");
       return user.uid;
     } else {
       return '';
@@ -122,7 +123,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
         if (toogleeight == true) trueCount++;
         progress = trueCount * 0.125;
         if (progress >= 1) progress = 1;
-        print("Patients:   $patients");
+        // print("Patients:   $patients");
       });
 
       // Print values of all attributes
@@ -313,13 +314,13 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         ),
                         SeassionCard(
                           isDone: toogleeight,
-                          text: "Color Matching ",
+                          text: "Packman",
                           seassionNum: 8,
                           press: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => MyHomePage()),
+                                  builder: (context) => HomePagePackman()),
                             );
                           },
                         ),

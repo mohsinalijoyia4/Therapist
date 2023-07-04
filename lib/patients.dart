@@ -397,18 +397,11 @@ class _TherapistPatientsState extends State<TherapistPatients> {
           .collection('assignedusers')
           .doc(patientId)
           .update({fieldToUpdate: newValue});
-      print("patientId 1: $patientId");
       await FirebaseFirestore.instance
           .collection('users')
           .doc(patientId)
           .update({fieldToUpdate: newValue});
-      print("patientId 2: $patientId");
 
-      // for (var userDoc in usersSnapshot.docs) {
-      //   await userDoc.reference.update({fieldToUpdate: newValue});
-      // }
-
-      // print("Object updated in users collection");
       print('Updated successfully');
       // Send notification to the patient
       // _sendNotification(patientId, fieldToUpdate);
