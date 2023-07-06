@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:docapp/firebase.dart';
 import 'package:docapp/games/rock_paper_scissors/button.dart';
 import 'package:docapp/games/rock_paper_scissors/game.dart';
 import 'package:docapp/games/rock_paper_scissors/main_screen.dart';
@@ -30,32 +30,33 @@ class _GameScreenState extends State<GameScreenRocks> {
     return Game.choices[robotChoiceIndex];
   }
 
-  void showWinDialog() {
-    if (Game.gameScore >= 1) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Congratulations!"),
-            content: Text("You won the game!"),
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Dismiss the dialog
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => UserScreenOne()),
-                  );
-                },
-                child: Text("OK"),
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
+  // void showWinDialog() {
+  //   if (Game.gameScore >= 1) {
+  //     showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           title: Text("Congratulations!"),
+  //           content: Text("You won the game!"),
+  //           actions: [
+  //             ElevatedButton(
+  //               onPressed: () {
+  //                 Navigator.of(context).pop(); // Dismiss the dialog
+  //                 Navigator.push(
+  //                   context,
+  //                   MaterialPageRoute(builder: (context) => UserScreenOne()),
+  //                 );
+  //               },
+  //               child: Text("OK"),
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     );
+  //   }
+  // }
 
+  FirebaseService firebaseService = FirebaseService();
   @override
   Widget build(BuildContext context) {
     String robotChoice = randomChoice()!;
@@ -88,27 +89,10 @@ class _GameScreenState extends State<GameScreenRocks> {
     if (GameChoice.gameRules[widget.gameChoice.type]![robotChoice] ==
         "You Win") {
       Game.gameScore++;
-      if (Game.gameScore >= 1) {
-        Game.gameScore = 0;
-        User? user = FirebaseAuth.instance.currentUser;
-        if (user != null) {
-          String currentUserId = user.uid;
-          FirebaseFirestore.instance
-              .collection('users')
-              .doc(currentUserId)
-              .update({'toggleFourth': true}).then((_) {
-            print('Field updated successfully.');
-          }).catchError((error) {
-            print('Failed to update field: $error');
-          });
-        } else {
-          print('User is not authenticated.');
-        }
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => UserScreenOne()),
-        );
-      }
+      // if (Game.gameScore == 1) {
+      //   Game.gameScore = 0;
+
+      // }
       // showWinDialog;
     }
     double btnWidth = MediaQuery.of(context).size.width / 2 - 40;
@@ -201,6 +185,70 @@ class _GameScreenState extends State<GameScreenRocks> {
                 ),
               ),
             ),
+            SizedBox(
+              height: 30.0,
+            ),
+            if (Game.gameScore > 0)
+              Container(
+                width: double.infinity,
+                child: RawMaterialButton(
+                  padding: EdgeInsets.all(24.0),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Congratulations!'),
+                          content: Text('You won the activity!'),
+                          actions: [
+                            TextButton(
+                              child: Text('OK'),
+                              onPressed: () async {
+                                User? user = FirebaseAuth.instance.currentUser;
+                                if (user != null) {
+                                  String currentUserId = user.uid;
+                                  String? therapistId = await firebaseService
+                                      .findTherapistIdForUser(currentUserId);
+                                  if (therapistId != null &&
+                                      therapistId.isNotEmpty) {
+                                    firebaseService.updateToggleValue(
+                                        therapistId,
+                                        currentUserId,
+                                        'toggleFourth',
+                                        true);
+                                    print(
+                                        'Field updated successfully by updatetoggle.');
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              UserScreenOne()),
+                                    );
+                                  } else {
+                                    print(
+                                        'Therapist ID is invalid or not found.');
+                                  }
+                                } else {
+                                  print('User is not authenticated.');
+                                }
+                              },
+                            )
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  shape: StadiumBorder(),
+                  fillColor: Colors.white,
+                  child: Text(
+                    "Completed Activity",
+                    style: TextStyle(
+                        color: Color(0xFF060A47),
+                        fontSize: 26.0,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
             SizedBox(
               height: 20.0,
             ),

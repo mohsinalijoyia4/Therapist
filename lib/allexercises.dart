@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:docapp/games/game.dart';
 import 'package:docapp/games/colormatch/colormatching.dart';
+import 'package:docapp/games/jigsaw/Screens/splashscreen.dart';
 import 'package:docapp/games/mathactivity/home_page.dart';
 import 'package:docapp/games/memory/ui/pages/startup_page.dart';
-import 'package:docapp/games/nwe/Board.dart';
+import 'package:docapp/games/slidingpuzzle/Board.dart';
 import 'package:docapp/games/rock_paper_scissors/main_screen.dart';
-import 'package:docapp/games/tetris/homepage.dart';
 import 'package:docapp/games/wordly/screens/game_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +38,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
     _fetchUserData();
   }
 
-  String getCurrentTherapistId() {
+  String getCurrentuserId() {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       // print("User is not null");
@@ -50,7 +50,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
   Future<void> _fetchUserData() async {
     String currentuseID = '';
-    currentuseID = getCurrentTherapistId();
+    currentuseID = getCurrentuserId();
 
     try {
       QuerySnapshot therapistsSnapshot =
@@ -69,30 +69,30 @@ class _DetailsScreenState extends State<DetailsScreen> {
             userData['id'] = assignedUserDoc.id;
 
             // Initialize toggle values if not already present
-            if (!userData.containsKey('toggleOne')) {
-              userData['toggleOne'] = false;
-            }
-            if (!userData.containsKey('toggleTwo')) {
-              userData['toggleTwo'] = false;
-            }
-            if (!userData.containsKey('toggleThree')) {
-              userData['toggleThree'] = false;
-            }
-            if (!userData.containsKey('toggleFourth')) {
-              userData['toggleFourth'] = false;
-            }
-            if (!userData.containsKey('toggleFivth')) {
-              userData['toggleFivth'] = false;
-            }
-            if (!userData.containsKey('togglesixth')) {
-              userData['togglesixth'] = false;
-            }
-            if (!userData.containsKey('toggleSeventh')) {
-              userData['toggleSeventh'] = false;
-            }
-            if (!userData.containsKey('toggleEighth')) {
-              userData['toggleEighth'] = false;
-            }
+            // if (!userData.containsKey('toggleOne')) {
+            //   userData['toggleOne'] = false;
+            // }
+            // if (!userData.containsKey('toggleTwo')) {
+            //   userData['toggleTwo'] = false;
+            // }
+            // if (!userData.containsKey('toggleThree')) {
+            //   userData['toggleThree'] = false;
+            // }
+            // if (!userData.containsKey('toggleFourth')) {
+            //   userData['toggleFourth'] = false;
+            // }
+            // if (!userData.containsKey('toggleFivth')) {
+            //   userData['toggleFivth'] = false;
+            // }
+            // if (!userData.containsKey('togglesixth')) {
+            //   userData['togglesixth'] = false;
+            // }
+            // if (!userData.containsKey('toggleSeventh')) {
+            //   userData['toggleSeventh'] = false;
+            // }
+            // if (!userData.containsKey('toggleEighth')) {
+            //   userData['toggleEighth'] = false;
+            // }
 
             patients.add(userData);
             break; // Exit the loop once the desired assigned user document is found
@@ -314,14 +314,15 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         ),
                         SeassionCard(
                           isDone: toogleeight,
-                          text: "Packman",
+                          text: "Jigsaw ",
                           seassionNum: 8,
                           press: () {
                             Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => HomePagePackman()),
-                            );
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SplashScreen())
+                                // HomePagePackman()),
+                                );
                           },
                         ),
                       ],

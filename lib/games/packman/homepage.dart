@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:docapp/games/tetris/pacman.dart';
+import 'package:docapp/games/packman/pacman.dart';
 import 'package:docapp/userscreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -199,6 +199,7 @@ class _HomePagePackmanState extends State<HomePagePackman> {
                         .instance
                         .collection('therapists')
                         .get();
+                    print("Get update ");
 
                     for (var therapistDoc in therapistsSnapshot.docs) {
                       QuerySnapshot assignedUsersSnapshot = await therapistDoc

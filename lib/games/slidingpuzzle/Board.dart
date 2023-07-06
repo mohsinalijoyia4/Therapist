@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:docapp/firebase.dart';
 import 'package:docapp/userscreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +15,7 @@ class Board extends StatefulWidget {
 class _BoardState extends State<Board> {
   var numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
   int move = 0;
-
+  FirebaseService firebaseService = FirebaseService();
   static const duration = const Duration(seconds: 1);
   int secondsPassed = 0;
   bool isActive = false;
@@ -119,25 +119,26 @@ class _BoardState extends State<Board> {
                       SizedBox(
                         width: 220.0,
                         child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => UserScreenOne()),
-                            );
+                          onPressed: () async {
                             User? user = FirebaseAuth.instance.currentUser;
                             if (user != null) {
                               String currentUserId = user.uid;
-                              FirebaseFirestore.instance
-                                  .collection('users')
-                                  .doc(currentUserId)
-                                  .update({'toggleOne': true}).then((_) {
-                                print('Field updated successfully.');
-                              }).catchError((error) {
-                                print('Failed to update field: $error');
-                              });
+                              String? therapistId = await firebaseService
+                                  .findTherapistIdForUser(currentUserId);
+                              if (therapistId != null &&
+                                  therapistId.isNotEmpty) {
+                                firebaseService.updateToggleValue(therapistId,
+                                    currentUserId, 'toggleOne', true);
+                                print(
+                                    'Field updated successfully by updatetoggle.');
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => UserScreenOne()),
+                                );
+                              } else {
+                                print('Therapist ID is invalid or not found.');
+                              }
                             } else {
                               print('User is not authenticated.');
                             }

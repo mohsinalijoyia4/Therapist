@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:docapp/firebase.dart';
 import 'package:docapp/userscreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -51,6 +51,8 @@ class _MyHomePageState extends State<MyHomePage> {
     clearState();
   }
 
+  FirebaseService firebaseService = FirebaseService();
+
   void showWinDialog() {
     showDialog(
       context: context,
@@ -61,29 +63,30 @@ class _MyHomePageState extends State<MyHomePage> {
           actions: [
             TextButton(
               child: Text('OK'),
-              onPressed: () {
+              onPressed: () async {
                 clearState();
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => UserScreenOne()),
-                );
                 User? user = FirebaseAuth.instance.currentUser;
                 if (user != null) {
                   String currentUserId = user.uid;
-                  FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(currentUserId)
-                      .update({'togglesixth': true}).then((_) {
-                    print('Field updated successfully.');
-                  }).catchError((error) {
-                    print('Failed to update field: $error');
-                  });
+                  String? therapistId = await firebaseService
+                      .findTherapistIdForUser(currentUserId);
+                  if (therapistId != null && therapistId.isNotEmpty) {
+                    firebaseService.updateToggleValue(
+                        therapistId, currentUserId, 'togglesixth', true);
+                    print('Field updated successfully by updatetoggle.');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => UserScreenOne()),
+                    );
+                  } else {
+                    print('Therapist ID is invalid or not found.');
+                  }
                 } else {
                   print('User is not authenticated.');
                 }
               },
-            ),
+            )
           ],
         );
       },

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:docapp/firebase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -115,6 +116,8 @@ class _TherapistPatientsState extends State<TherapistPatients> {
     String? age = patientData['age'] as String?;
     String? contact = patientData['phone'] as String?;
     String? email = patientData['email'] as String?;
+    FirebaseService firebaseService = FirebaseService();
+
     int trueCount = 0;
     if (patientData['toggleOne'] == true) trueCount++;
     if (patientData['toggleTwo'] == true) trueCount++;
@@ -195,7 +198,7 @@ class _TherapistPatientsState extends State<TherapistPatients> {
                                 setState(() {
                                   patientData['toggleOne'] = newValue;
                                 });
-                                _updateToggleValue(
+                                firebaseService.updateToggleValue(
                                   therapistId,
                                   patientData['id'] as String,
                                   'toggleOne',
@@ -217,7 +220,7 @@ class _TherapistPatientsState extends State<TherapistPatients> {
                                 setState(() {
                                   patientData['toggleTwo'] = newValue;
                                 });
-                                _updateToggleValue(
+                                firebaseService.updateToggleValue(
                                   therapistId,
                                   patientData['id'] as String,
                                   'toggleTwo',
@@ -239,7 +242,7 @@ class _TherapistPatientsState extends State<TherapistPatients> {
                                 setState(() {
                                   patientData['toggleThree'] = newValue;
                                 });
-                                _updateToggleValue(
+                                firebaseService.updateToggleValue(
                                   therapistId,
                                   patientData['id'] as String,
                                   'toggleThree',
@@ -262,7 +265,7 @@ class _TherapistPatientsState extends State<TherapistPatients> {
                                   patientData['toggleFourth'] = newValue;
                                 });
 
-                                _updateToggleValue(
+                                firebaseService.updateToggleValue(
                                   therapistId,
                                   patientData['id'] as String,
                                   'toggleFourth',
@@ -293,7 +296,7 @@ class _TherapistPatientsState extends State<TherapistPatients> {
                                   patientData['toggleFivth'] = newValue;
                                 });
 
-                                _updateToggleValue(
+                                firebaseService.updateToggleValue(
                                   therapistId,
                                   patientData['id'] as String,
                                   'toggleFivth',
@@ -316,7 +319,7 @@ class _TherapistPatientsState extends State<TherapistPatients> {
                                   patientData['togglesixth'] = newValue;
                                 });
 
-                                _updateToggleValue(
+                                firebaseService.updateToggleValue(
                                   therapistId,
                                   patientData['id'] as String,
                                   'togglesixth',
@@ -339,7 +342,7 @@ class _TherapistPatientsState extends State<TherapistPatients> {
                                   patientData['toggleEighth'] = newValue;
                                 });
 
-                                _updateToggleValue(
+                                firebaseService.updateToggleValue(
                                   therapistId,
                                   patientData['id'] as String,
                                   'toggleEighth',
@@ -361,8 +364,7 @@ class _TherapistPatientsState extends State<TherapistPatients> {
                                 setState(() {
                                   patientData['toggleEighth'] = newValue;
                                 });
-
-                                _updateToggleValue(
+                                firebaseService.updateToggleValue(
                                   therapistId,
                                   patientData['id'] as String,
                                   'toggleEighth',

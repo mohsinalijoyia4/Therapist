@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:docapp/constants.dart';
+import 'package:docapp/firebase.dart';
 import 'package:docapp/userscreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +15,7 @@ class MatchingGame extends StatefulWidget {
 class _MatchingGameState extends State<MatchingGame> {
   late List<ItemModel> items;
   late List<ItemModel> items2;
-
+  FirebaseService firebaseService = FirebaseService();
   int score = 0;
   bool gameOver = false;
 
@@ -45,21 +45,41 @@ class _MatchingGameState extends State<MatchingGame> {
   }
 
   void update() async {
-    User? currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      DocumentReference userDoc =
-          FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
-
-      // Update the toggleThree field if the score is 50
-      if (score == 50) {
-        await userDoc.update({'toggleThree': true});
-        print('toggleThree updated in Firestore');
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => UserScreenOne()),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Congratulations!'),
+          content: Text('You won the activity!'),
+          actions: [
+            TextButton(
+              child: Text('OK'),
+              onPressed: () async {
+                User? user = FirebaseAuth.instance.currentUser;
+                if (user != null) {
+                  String currentUserId = user.uid;
+                  String? therapistId = await firebaseService
+                      .findTherapistIdForUser(currentUserId);
+                  if (therapistId != null && therapistId.isNotEmpty) {
+                    firebaseService.updateToggleValue(
+                        therapistId, currentUserId, 'toggleThree', true);
+                    print('Field updated successfully by updatetoggle.');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => UserScreenOne()),
+                    );
+                  } else {
+                    print('Therapist ID is invalid or not found.');
+                  }
+                } else {
+                  print('User is not authenticated.');
+                }
+              },
+            )
+          ],
         );
-      }
-    }
+      },
+    );
   }
 
   @override

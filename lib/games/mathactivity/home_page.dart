@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:docapp/firebase.dart';
 import 'package:docapp/games/mathactivity/const.dart';
 import 'package:docapp/games/mathactivity/util/my_button.dart';
 import 'package:docapp/games/mathactivity/util/result_message.dart';
@@ -15,6 +15,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  FirebaseService firebaseService = FirebaseService();
   // number pad list
   List<String> numberPad = [
     '7',
@@ -73,26 +74,26 @@ class _HomePageState extends State<HomePage> {
           builder: (context) {
             return ResultMessage(
               message: 'Congratulations, you won the activity!',
-              onTap: () {
+              onTap: () async {
                 User? user = FirebaseAuth.instance.currentUser;
                 if (user != null) {
                   String currentUserId = user.uid;
-                  FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(currentUserId)
-                      .update({'toggleFivth': true}).then((_) {
-                    print('Field updated successfully.');
-                  }).catchError((error) {
-                    print('Failed to update field: $error');
-                  });
+                  String? therapistId = await firebaseService
+                      .findTherapistIdForUser(currentUserId);
+                  if (therapistId != null && therapistId.isNotEmpty) {
+                    firebaseService.updateToggleValue(
+                        therapistId, currentUserId, 'toggleFivth', true);
+                    print('Field updated successfully by updatetoggle.');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => UserScreenOne()),
+                    );
+                  } else {
+                    print('Therapist ID is invalid or not found.');
+                  }
                 } else {
                   print('User is not authenticated.');
                 }
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => UserScreenOne()),
-                );
               },
               icon: Icons.check,
             );

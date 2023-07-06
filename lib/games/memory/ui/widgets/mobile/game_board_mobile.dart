@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:docapp/allexercises.dart';
+import 'package:docapp/firebase.dart';
 import 'package:docapp/games/memory/models/game.dart';
 import 'package:docapp/games/memory/ui/widgets/game_confetti.dart';
 import 'package:docapp/games/memory/ui/widgets/memory_card.dart';
 import 'package:docapp/games/memory/ui/widgets/mobile/game_best_time_mobile.dart';
 import 'package:docapp/games/memory/ui/widgets/mobile/game_timer_mobile.dart';
 import 'package:docapp/games/memory/ui/widgets/restart_game.dart';
+import 'package:docapp/userscreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,6 +30,7 @@ class _GameBoardMobileState extends State<GameBoardMobile> {
   late Duration duration;
   int bestTime = 0;
   bool showConfetti = false;
+  FirebaseService firebaseService = FirebaseService();
   @override
   void initState() {
     super.initState();
@@ -135,24 +136,25 @@ class _GameBoardMobileState extends State<GameBoardMobile> {
                         color: Colors.white,
                       ),
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const DetailsScreen()),
-                          );
-
+                        onPressed: () async {
                           User? user = FirebaseAuth.instance.currentUser;
                           if (user != null) {
                             String currentUserId = user.uid;
-                            FirebaseFirestore.instance
-                                .collection('users')
-                                .doc(currentUserId)
-                                .update({'togglesixth': true}).then((_) {
-                              print('Field updated successfully.');
-                            }).catchError((error) {
-                              print('Failed to update field: $error');
-                            });
+                            String? therapistId = await firebaseService
+                                .findTherapistIdForUser(currentUserId);
+                            if (therapistId != null && therapistId.isNotEmpty) {
+                              firebaseService.updateToggleValue(therapistId,
+                                  currentUserId, 'toggleSeventh', true);
+                              print(
+                                  'Field updated successfully by updatetoggle.');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => UserScreenOne()),
+                              );
+                            } else {
+                              print('Therapist ID is invalid or not found.');
+                            }
                           } else {
                             print('User is not authenticated.');
                           }
