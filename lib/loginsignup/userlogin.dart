@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:docapp/firebase.dart';
 import 'package:docapp/loginsignup/forgetpassword.dart';
 import 'package:docapp/loginsignup/textbutton.dart';
 import 'package:docapp/loginsignup/userregistration.dart';
@@ -25,9 +26,12 @@ class _UserSignInState extends State<UserSignIn> {
     await Firebase.initializeApp();
   }
 
+  FirebaseService firebaseService = FirebaseService();
+
   @override
   void initState() {
     super.initState();
+    firebaseService.fetchUserDatafromfirestor();
     initializeFirebase();
     _emailController.addListener(() {});
     _passwordController.addListener(() {});

@@ -1,4 +1,4 @@
-import 'package:docapp/patientlist.dart';
+import 'package:docapp/patients.dart';
 import 'package:docapp/therapisthome.dart';
 import 'package:flutter/material.dart';
 
@@ -30,10 +30,7 @@ class _TherapistScreenOneState extends State<TherapistScreenOne>
     super.dispose();
   }
 
-  final List<Widget> _pages = [
-    TherapistAppHomePage(), 
-    PatientListPage()
-    ];
+  final List<Widget> _pages = [TherapistAppHomePage(), TherapistPatients()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +47,6 @@ class _TherapistScreenOneState extends State<TherapistScreenOne>
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
-                
                 ),
                 boxShadow: [
                   BoxShadow(

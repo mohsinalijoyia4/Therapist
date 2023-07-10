@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:docapp/constants.dart';
+import 'package:docapp/userscreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -52,6 +53,8 @@ class _TherapistForUserState extends State<TherapistForUser> {
           'toggleFourth': userData['toggleFourth'],
           'toggleFivth': userData['toggleFivth'],
           'togglesixth': userData['togglesixth'],
+          'toggleSeventh': userData['toggleSeventh'],
+          'toggleEighth': userData['toggleEighth']
         });
 
         print("User added to assignedusers collection");
@@ -176,6 +179,32 @@ class _TherapistForUserState extends State<TherapistForUser> {
                       print("Confirm is pressed");
                       addAssignedUserToTherapist(
                           widget.therapistData['id'], userid);
+
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Assigned Therapist'),
+                            content: Text('You have assigned this therapist.'),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text('OK'),
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          UserScreenOne(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     },
                     child: const Text('Confirm Therapist'),
                     style: ElevatedButton.styleFrom(

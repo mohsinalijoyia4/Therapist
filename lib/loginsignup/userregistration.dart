@@ -61,6 +61,14 @@ class _UserRegistrationState extends State<UserRegistration> {
             'phone': _phoneController.text.trim(),
             'age': _ageController.text.trim(),
             'profileImage': '', // Placeholder for user profile image URL
+            'toggleOne': false,
+            'toggleTwo': false,
+            'toggleThree': false,
+            'toggleFourth': false,
+            'toggleFivth': false,
+            'togglesixth': false,
+            'toggleSeventh': false,
+            'toggleEighth': false,
           })
           .then((value) {})
           .onError((error, stackTrace) {
@@ -83,7 +91,7 @@ class _UserRegistrationState extends State<UserRegistration> {
             .doc(userUid)
             .update({'profileImage': imageUrl});
       }
-    
+
       // Registration successful, navigate to the next screen
       Navigator.push(
         context,
@@ -213,7 +221,7 @@ class _UserRegistrationState extends State<UserRegistration> {
                           if (value!.isEmpty) {
                             return 'Email is required';
                           }
-                          
+
                           return null;
                         },
                       ),

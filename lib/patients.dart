@@ -81,6 +81,8 @@ class _TherapistPatientsState extends State<TherapistPatients> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: Colors.white24,
       appBar: AppBar(
@@ -101,7 +103,7 @@ class _TherapistPatientsState extends State<TherapistPatients> {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: patientList.length,
                 itemBuilder: (context, index) {
-                  return _buildPatientTile(patientList[index], index);
+                  return _buildPatientTile(patientList[index], index, size);
                 },
               ),
             ],
@@ -112,7 +114,8 @@ class _TherapistPatientsState extends State<TherapistPatients> {
   }
 
   String therapistId = '';
-  Widget _buildPatientTile(Map<String, dynamic> patientData, int index) {
+  Widget _buildPatientTile(
+      Map<String, dynamic> patientData, int index, Size size) {
     String? age = patientData['age'] as String?;
     String? contact = patientData['phone'] as String?;
     String? email = patientData['email'] as String?;
@@ -135,6 +138,7 @@ class _TherapistPatientsState extends State<TherapistPatients> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
+        width: size.width * 0.8,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
@@ -143,7 +147,7 @@ class _TherapistPatientsState extends State<TherapistPatients> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Padding(
                   padding: const EdgeInsets.all(10.0),
@@ -160,6 +164,18 @@ class _TherapistPatientsState extends State<TherapistPatients> {
                     ),
                   ),
                 ),
+                Container(
+                  width: 200, // Adjust the width according to your needs
+                  child: const Text(
+                    "This progress indicator shows the percentage of total Completed Activities",
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400),
+                    textAlign: TextAlign.start,
+                    softWrap: true,
+                  ),
+                )
               ],
             ),
             ExpansionTile(
@@ -181,201 +197,843 @@ class _TherapistPatientsState extends State<TherapistPatients> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          children: [
-                            Text(
-                              "Activity 1",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            Switch(
-                              value: patientData['toggleOne'] ?? false,
-                              onChanged: (newValue) {
-                                setState(() {
-                                  patientData['toggleOne'] = newValue;
-                                });
-                                firebaseService.updateToggleValue(
-                                  therapistId,
-                                  patientData['id'] as String,
-                                  'toggleOne',
-                                  newValue,
-                                );
-                              },
-                            ),
-                          ],
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Activity 1",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          Row(
+                            children: [
+                              Text("OFF"),
+                              Switch(
+                                value: patientData['toggleOne'] ? false : true,
+                                onChanged: (newValue) {
+                                  if (newValue == true) {
+                                    setState(() {
+                                      patientData['toggleOne'] = false;
+                                    });
+                                    firebaseService.updateToggleValue(
+                                      therapistId,
+                                      patientData['id'] as String,
+                                      'toggleOne',
+                                      false,
+                                    );
+                                  }
+                                },
+                              ),
+                              Text("ON"),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10)),
+                        height: size.height * 0.09,
+                        width: size.width * 0.8,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Icon(
+                              //   Icons.check_circle,
+                              //   size: 40,
+                              // ),
+                              // SizedBox(
+                              //   width: size.width * 0.051,
+                              // ),
+                              Column(
+                                children: [
+                                  Text(
+                                    "Turn ON the toggle to assigne the Activity again",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black),
+                                  ),
+                                  SizedBox(
+                                    height: size.height * 0.021,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "0%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                      SizedBox(
+                                        width: size.width * 0.6,
+                                        child: LinearProgressIndicator(
+                                          minHeight: 20,
+                                          value: patientData['toggleOne']
+                                              ? 1
+                                              : 0, // Set the progress value (between 0.0 and 1.0)
+                                          valueColor: AlwaysStoppedAnimation<
+                                                  Color>(
+                                              Colors
+                                                  .blue), // Set the filled color
+                                          backgroundColor: Colors
+                                              .grey, // Set the background color of the progress bar
+                                        ),
+                                      ),
+                                      Text(
+                                        "100%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                        Column(
-                          children: [
-                            Text(
-                              "Activity 2",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            Switch(
-                              value: patientData['toggleTwo'] ?? false,
-                              onChanged: (newValue) {
-                                setState(() {
-                                  patientData['toggleTwo'] = newValue;
-                                });
-                                firebaseService.updateToggleValue(
-                                  therapistId,
-                                  patientData['id'] as String,
-                                  'toggleTwo',
-                                  newValue,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              "Activity 3",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            Switch(
-                              value: patientData['toggleThree'] ?? false,
-                              onChanged: (newValue) {
-                                setState(() {
-                                  patientData['toggleThree'] = newValue;
-                                });
-                                firebaseService.updateToggleValue(
-                                  therapistId,
-                                  patientData['id'] as String,
-                                  'toggleThree',
-                                  newValue,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              "Activity 4",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            Switch(
-                              value: patientData['toggleFourth'] ?? false,
-                              onChanged: (newValue) {
-                                setState(() {
-                                  patientData['toggleFourth'] = newValue;
-                                });
-
-                                firebaseService.updateToggleValue(
-                                  therapistId,
-                                  patientData['id'] as String,
-                                  'toggleFourth',
-                                  newValue,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          children: [
-                            Text(
-                              "Activity 5",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            Switch(
-                              value: patientData['toggleFivth'] ?? false,
-                              onChanged: (newValue) {
-                                setState(() {
-                                  patientData['toggleFivth'] = newValue;
-                                });
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Activity 2",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          Row(
+                            children: [
+                              Text("OFF"),
+                              Switch(
+                                value: patientData['toggleTwo'] ? false : true,
+                                onChanged: (newValue) {
+                                  if (newValue == true) {
+                                    setState(() {
+                                      patientData['toggleTwo'] = false;
+                                    });
+                                    firebaseService.updateToggleValue(
+                                      therapistId,
+                                      patientData['id'] as String,
+                                      'toggleTwo',
+                                      false,
+                                    );
+                                  }
+                                },
+                              ),
+                              Text("ON"),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10)),
+                        height: size.height * 0.09,
+                        width: size.width * 0.8,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Column(
+                                children: [
+                                  Text(
+                                    "Turn ON the toggle to assigne the Activity again",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black),
+                                  ),
+                                  SizedBox(
+                                    height: size.height * 0.021,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "0%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                      SizedBox(
+                                        width: size.width * 0.6,
+                                        child: LinearProgressIndicator(
+                                          minHeight: 20,
+                                          value: patientData['toggleTwo']
+                                              ? 1
+                                              : 0, // Set the progress value (between 0.0 and 1.0)
+                                          valueColor: AlwaysStoppedAnimation<
+                                                  Color>(
+                                              Colors
+                                                  .blue), // Set the filled color
+                                          backgroundColor: Colors
+                                              .grey, // Set the background color of the progress bar
+                                        ),
+                                      ),
+                                      Text(
+                                        "100%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Activity 3",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          Row(
+                            children: [
+                              Text("OFF"),
+                              Switch(
+                                value:
+                                    patientData['toggleThree'] ? false : true,
+                                onChanged: (newValue) {
+                                  if (newValue == true) {
+                                    setState(() {
+                                      patientData['toggleThree'] = false;
+                                    });
+                                    firebaseService.updateToggleValue(
+                                      therapistId,
+                                      patientData['id'] as String,
+                                      'toggleThree',
+                                      false,
+                                    );
+                                  }
+                                },
+                              ),
+                              Text("ON"),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10)),
+                        height: size.height * 0.09,
+                        width: size.width * 0.8,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Icon(
+                              //   Icons.check_circle,
+                              //   size: 40,
+                              // ),
+                              // SizedBox(
+                              //   width: size.width * 0.051,
+                              // ),
+                              Column(
+                                children: [
+                                  Text(
+                                    "Turn ON the toggle to assigne the Activity again",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black),
+                                  ),
+                                  SizedBox(
+                                    height: size.height * 0.021,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "0%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                      SizedBox(
+                                        width: size.width * 0.6,
+                                        child: LinearProgressIndicator(
+                                          minHeight: 20,
+                                          value: patientData['toggleThree']
+                                              ? 1
+                                              : 0, // Set the progress value (between 0.0 and 1.0)
+                                          valueColor: AlwaysStoppedAnimation<
+                                                  Color>(
+                                              Colors
+                                                  .blue), // Set the filled color
+                                          backgroundColor: Colors
+                                              .grey, // Set the background color of the progress bar
+                                        ),
+                                      ),
+                                      Text(
+                                        "100%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Activity 4",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          Row(
+                            children: [
+                              Text("OFF"),
+                              Switch(
+                                value:
+                                    patientData['toggleFourth'] ? false : true,
+                                onChanged: (newValue) {
+                                  if (newValue == true) {
+                                    setState(() {
+                                      patientData['toggleFourth'] = false;
+                                    });
 
-                                firebaseService.updateToggleValue(
-                                  therapistId,
-                                  patientData['id'] as String,
-                                  'toggleFivth',
-                                  newValue,
-                                );
-                              },
-                            ),
-                          ],
+                                    firebaseService.updateToggleValue(
+                                      therapistId,
+                                      patientData['id'] as String,
+                                      'toggleFourth',
+                                      false,
+                                    );
+                                  }
+                                },
+                              ),
+                              Text("ON"),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10)),
+                        height: size.height * 0.09,
+                        width: size.width * 0.8,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Icon(
+                              //   Icons.check_circle,
+                              //   size: 40,
+                              // ),
+                              // SizedBox(
+                              //   width: size.width * 0.051,
+                              // ),
+                              Column(
+                                children: [
+                                  Text(
+                                    "Turn ON the toggle to assigne the Activity again",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black),
+                                  ),
+                                  SizedBox(
+                                    height: size.height * 0.021,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "0%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                      SizedBox(
+                                        width: size.width * 0.6,
+                                        child: LinearProgressIndicator(
+                                          minHeight: 20,
+                                          value: patientData['toggleFourth']
+                                              ? 1
+                                              : 0, // Set the progress value (between 0.0 and 1.0)
+                                          valueColor: AlwaysStoppedAnimation<
+                                                  Color>(
+                                              Colors
+                                                  .blue), // Set the filled color
+                                          backgroundColor: Colors
+                                              .grey, // Set the background color of the progress bar
+                                        ),
+                                      ),
+                                      Text(
+                                        "100%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                        Column(
-                          children: [
-                            Text(
-                              "Activity 6",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            Switch(
-                              value: patientData['togglesixth'] ?? false,
-                              onChanged: (newValue) {
-                                setState(() {
-                                  patientData['togglesixth'] = newValue;
-                                });
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Activity 5",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          Row(
+                            children: [
+                              Text("OFF"),
+                              Switch(
+                                value:
+                                    patientData['toggleFivth'] ? false : true,
+                                onChanged: (newValue) {
+                                  if (newValue == true) {
+                                    setState(() {
+                                      patientData['toggleFivth'] = false;
+                                    });
 
-                                firebaseService.updateToggleValue(
-                                  therapistId,
-                                  patientData['id'] as String,
-                                  'togglesixth',
-                                  newValue,
-                                );
-                              },
-                            ),
-                          ],
+                                    firebaseService.updateToggleValue(
+                                      therapistId,
+                                      patientData['id'] as String,
+                                      'toggleFivth',
+                                      false,
+                                    );
+                                  }
+                                },
+                              ),
+                              Text("ON"),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10)),
+                        height: size.height * 0.09,
+                        width: size.width * 0.8,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Icon(
+                              //   Icons.check_circle,
+                              //   size: 40,
+                              // ),
+                              // SizedBox(
+                              //   width: size.width * 0.051,
+                              // ),
+                              Column(
+                                children: [
+                                  Text(
+                                    "Turn ON the toggle to assigne the Activity again",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black),
+                                  ),
+                                  SizedBox(
+                                    height: size.height * 0.021,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "0%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                      SizedBox(
+                                        width: size.width * 0.6,
+                                        child: LinearProgressIndicator(
+                                          minHeight: 20,
+                                          value: patientData['toggleFivth']
+                                              ? 1
+                                              : 0, // Set the progress value (between 0.0 and 1.0)
+                                          valueColor: AlwaysStoppedAnimation<
+                                                  Color>(
+                                              Colors
+                                                  .blue), // Set the filled color
+                                          backgroundColor: Colors
+                                              .grey, // Set the background color of the progress bar
+                                        ),
+                                      ),
+                                      Text(
+                                        "100%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                        Column(
-                          children: [
-                            Text(
-                              "Activity 7",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            Switch(
-                              value: patientData['toggleSeventh'] ?? false,
-                              onChanged: (newValue) {
-                                setState(() {
-                                  patientData['toggleEighth'] = newValue;
-                                });
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Activity 6",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          Row(
+                            children: [
+                              Text("OFF"),
+                              Switch(
+                                value:
+                                    patientData['togglesixth'] ? false : true,
+                                onChanged: (newValue) {
+                                  if (newValue == true) {
+                                    setState(() {
+                                      patientData['togglesixth'] = false;
+                                    });
 
-                                firebaseService.updateToggleValue(
-                                  therapistId,
-                                  patientData['id'] as String,
-                                  'toggleEighth',
-                                  newValue,
-                                );
-                              },
-                            ),
-                          ],
+                                    firebaseService.updateToggleValue(
+                                      therapistId,
+                                      patientData['id'] as String,
+                                      'togglesixth',
+                                      false,
+                                    );
+                                  }
+                                },
+                              ),
+                              Text("ON"),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10)),
+                        height: size.height * 0.09,
+                        width: size.width * 0.8,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Icon(
+                              //   Icons.check_circle,
+                              //   size: 40,
+                              // ),
+                              // SizedBox(
+                              //   width: size.width * 0.051,
+                              // ),
+                              Column(
+                                children: [
+                                  Text(
+                                    "Turn ON the toggle to assigne the Activity again",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black),
+                                  ),
+                                  SizedBox(
+                                    height: size.height * 0.021,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "0%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                      SizedBox(
+                                        width: size.width * 0.6,
+                                        child: LinearProgressIndicator(
+                                          minHeight: 20,
+                                          value: patientData['togglesixth']
+                                              ? 1
+                                              : 0, // Set the progress value (between 0.0 and 1.0)
+                                          valueColor: AlwaysStoppedAnimation<
+                                                  Color>(
+                                              Colors
+                                                  .blue), // Set the filled color
+                                          backgroundColor: Colors
+                                              .grey, // Set the background color of the progress bar
+                                        ),
+                                      ),
+                                      Text(
+                                        "100%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                        Column(
-                          children: [
-                            Text(
-                              "Activity 8",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            Switch(
-                              value: patientData['toggleEighth'] ?? false,
-                              onChanged: (newValue) {
-                                setState(() {
-                                  patientData['toggleEighth'] = newValue;
-                                });
-                                firebaseService.updateToggleValue(
-                                  therapistId,
-                                  patientData['id'] as String,
-                                  'toggleEighth',
-                                  newValue,
-                                );
-                              },
-                            ),
-                          ],
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Activity 7",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          Row(
+                            children: [
+                              Text("OFF"),
+                              Switch(
+                                value:
+                                    patientData['toggleSeventh'] ? false : true,
+                                onChanged: (newValue) {
+                                  if (newValue == true) {
+                                    setState(() {
+                                      patientData['toggleSeventh'] = false;
+                                    });
+
+                                    firebaseService.updateToggleValue(
+                                      therapistId,
+                                      patientData['id'] as String,
+                                      'toggleSeventh',
+                                      false,
+                                    );
+                                  }
+                                },
+                              ),
+                              Text("ON"),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10)),
+                        height: size.height * 0.09,
+                        width: size.width * 0.8,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Icon(
+                              //   Icons.check_circle,
+                              //   size: 40,
+                              // ),
+                              // SizedBox(
+                              //   width: size.width * 0.051,
+                              // ),
+                              Column(
+                                children: [
+                                  Text(
+                                    "Turn ON the toggle to assigne the Activity again",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black),
+                                  ),
+                                  SizedBox(
+                                    height: size.height * 0.021,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "0%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                      SizedBox(
+                                        width: size.width * 0.6,
+                                        child: LinearProgressIndicator(
+                                          minHeight: 20,
+                                          value: patientData['toggleSeventh']
+                                              ? 1
+                                              : 0, // Set the progress value (between 0.0 and 1.0)
+                                          valueColor: AlwaysStoppedAnimation<
+                                                  Color>(
+                                              Colors
+                                                  .blue), // Set the filled color
+                                          backgroundColor: Colors
+                                              .grey, // Set the background color of the progress bar
+                                        ),
+                                      ),
+                                      Text(
+                                        "100%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Activity 8",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          Row(
+                            children: [
+                              Text("OFF"),
+                              Switch(
+                                value:
+                                    patientData['toggleEighth'] ? false : true,
+                                onChanged: (newValue) {
+                                  if (newValue == true) {
+                                    setState(() {
+                                      patientData['toggleEighth'] = false;
+                                    });
+                                    firebaseService.updateToggleValue(
+                                      therapistId,
+                                      patientData['id'] as String,
+                                      'toggleEighth',
+                                      false,
+                                    );
+                                  }
+                                },
+                              ),
+                              Text("ON"),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10)),
+                        height: size.height * 0.09,
+                        width: size.width * 0.8,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Icon(
+                              //   Icons.check_circle,
+                              //   size: 40,
+                              // ),
+                              // SizedBox(
+                              //   width: size.width * 0.051,
+                              // ),
+                              Column(
+                                children: [
+                                  Text(
+                                    "Turn ON the toggle to assigne the Activity again",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black),
+                                  ),
+                                  SizedBox(
+                                    height: size.height * 0.021,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "0%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                      SizedBox(
+                                        width: size.width * 0.6,
+                                        child: LinearProgressIndicator(
+                                          minHeight: 20,
+                                          value: patientData['toggleEighth']
+                                              ? 1
+                                              : 0, // Set the progress value (between 0.0 and 1.0)
+                                          valueColor: AlwaysStoppedAnimation<
+                                                  Color>(
+                                              Colors
+                                                  .blue), // Set the filled color
+                                          backgroundColor: Colors
+                                              .grey, // Set the background color of the progress bar
+                                        ),
+                                      ),
+                                      Text(
+                                        "100%",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -384,31 +1042,5 @@ class _TherapistPatientsState extends State<TherapistPatients> {
         ),
       ),
     );
-  }
-
-  Future<void> _updateToggleValue(
-    String therapistId,
-    String patientId,
-    String fieldToUpdate,
-    bool newValue,
-  ) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('therapists')
-          .doc(therapistId)
-          .collection('assignedusers')
-          .doc(patientId)
-          .update({fieldToUpdate: newValue});
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(patientId)
-          .update({fieldToUpdate: newValue});
-
-      print('Updated successfully');
-      // Send notification to the patient
-      // _sendNotification(patientId, fieldToUpdate);
-    } catch (error) {
-      print('Error updating toggle value: $error');
-    }
   }
 }

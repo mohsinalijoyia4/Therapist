@@ -69,30 +69,30 @@ class _DetailsScreenState extends State<DetailsScreen> {
             userData['id'] = assignedUserDoc.id;
 
             // Initialize toggle values if not already present
-            // if (!userData.containsKey('toggleOne')) {
-            //   userData['toggleOne'] = false;
-            // }
-            // if (!userData.containsKey('toggleTwo')) {
-            //   userData['toggleTwo'] = false;
-            // }
-            // if (!userData.containsKey('toggleThree')) {
-            //   userData['toggleThree'] = false;
-            // }
-            // if (!userData.containsKey('toggleFourth')) {
-            //   userData['toggleFourth'] = false;
-            // }
-            // if (!userData.containsKey('toggleFivth')) {
-            //   userData['toggleFivth'] = false;
-            // }
-            // if (!userData.containsKey('togglesixth')) {
-            //   userData['togglesixth'] = false;
-            // }
-            // if (!userData.containsKey('toggleSeventh')) {
-            //   userData['toggleSeventh'] = false;
-            // }
-            // if (!userData.containsKey('toggleEighth')) {
-            //   userData['toggleEighth'] = false;
-            // }
+            if (!userData.containsKey('toggleOne')) {
+              userData['toggleOne'] = false;
+            }
+            if (!userData.containsKey('toggleTwo')) {
+              userData['toggleTwo'] = false;
+            }
+            if (!userData.containsKey('toggleThree')) {
+              userData['toggleThree'] = false;
+            }
+            if (!userData.containsKey('toggleFourth')) {
+              userData['toggleFourth'] = false;
+            }
+            if (!userData.containsKey('toggleFivth')) {
+              userData['toggleFivth'] = false;
+            }
+            if (!userData.containsKey('togglesixth')) {
+              userData['togglesixth'] = false;
+            }
+            if (!userData.containsKey('toggleSeventh')) {
+              userData['toggleSeventh'] = false;
+            }
+            if (!userData.containsKey('toggleEighth')) {
+              userData['toggleEighth'] = false;
+            }
 
             patients.add(userData);
             break; // Exit the loop once the desired assigned user document is found
